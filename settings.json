@@ -1,0 +1,13 @@
+{
+	"bot":{
+		"token":"<BOT TOKEN HERE>",
+		"version":"v0.0.2",
+		"tts":false
+	}, 
+	"admins":[
+		"admin",
+		"user",
+		"ids",
+		"here"
+	]
+}
