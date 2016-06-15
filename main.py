@@ -4,13 +4,6 @@ import json
 import time
 import io
 import sys
-#TODO:
-#   add permissions for admins/mods,
-#   modulate commands,
-#   impliment a markov chain,
-#   set command prefix to "!" for uni-bot and @mention for multi-bot servers,
-#   allow users to make commands in chat
-#   set command tags to "-" (e.g. "!time -up", "!echo -times=5 'hello'")
 
 settings = open('settings.json', 'r')
 ds = json.load(settings)
