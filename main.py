@@ -100,5 +100,4 @@ async def on_ready():
             
 startTime = time.time()
 client.run(ds['bot']["token"])
-p.join()
 settings.close()
