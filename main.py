@@ -4,6 +4,7 @@ import json
 import time
 import io
 import sys
+# import multiprocessing ...later...
 
 settings = open('settings.json', 'r')
 ds = json.load(settings)
@@ -17,6 +18,33 @@ logger.addHandler(handler)
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 client = discord.Client()
+
+def findChannel(name):
+    channels = list(client.get_all_channels())
+    for all in channels:
+        print(all.name)
+        if all.name == name:
+            return all
+
+@client.event
+async def on_channel_delete(channel):
+    msg = "Channel {0} has been deleted!".format(channel)
+    await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+
+@client.event
+async def on_channel_create(channel):
+    msg = "Channel {0} has been created!".format(channel)
+    await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+
+@client.event
+async def on_member_join(member):
+    msg = "New member {0} has joined the server!".format(member)
+    await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+
+@client.event
+async def on_member_remove(member):
+    msg = "New member {0} has left the server!".format(member)
+    await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
 @client.event
 async def on_message(message):
@@ -69,7 +97,8 @@ async def on_ready():
     logger.info(client.user.name)
     logger.info(client.user.id)
     logger.info('------')
-    
+            
 startTime = time.time()
 client.run(ds['bot']["token"])
+p.join()
 settings.close()
