@@ -28,22 +28,22 @@ def findChannel(name):
 
 @client.event
 async def on_channel_delete(channel):
-    msg = "Channel {0} has been deleted!".format(channel)
+    msg = "Channel {0} has been deleted!".format(channel.mention)
     await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
 @client.event
 async def on_channel_create(channel):
-    msg = "Channel {0} has been created!".format(channel)
+    msg = "Channel {0} has been created!".format(channel.mention)
     await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
 @client.event
 async def on_member_join(member):
-    msg = "New member {0} has joined the server!".format(member)
+    msg = "New member {0} has joined the server!".format(member.mention)
     await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
 @client.event
 async def on_member_remove(member):
-    msg = "New member {0} has left the server!".format(member)
+    msg = "New member {0} has left the server!".format(member.mention)
     await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
 @client.event
