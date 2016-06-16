@@ -12,5 +12,7 @@
 	],
 	"server":{
 		"announcements":"announcements"
-	}
+	},
+	
+	"game":"Boop"
 }

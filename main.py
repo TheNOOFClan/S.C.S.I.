@@ -97,6 +97,12 @@ async def on_ready():
     logger.info(client.user.name)
     logger.info(client.user.id)
     logger.info('------')
+    
+    await client.change_status(game=discord.Game(name=ds['game']))
+    print('Game set to:')
+    print(ds['game'])
+    logger.info('Game set to')
+    logger.info(ds['game'])
             
 startTime = time.time()
 client.run(ds['bot']["token"])
