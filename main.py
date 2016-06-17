@@ -27,7 +27,7 @@ print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], disc
 def findChannel(name):
 	channels = list(bot.get_all_channels())
 	for all in channels:
-		if all.name == name
+		if all.name == name:
 			return all
 		else:
 			return -1
