@@ -1,8 +1,10 @@
 {
 	"bot":{
 		"token":"<INSERT BOT TOKEN HERE>",
-		"version":"v0.0.3",
-		"tts":false
+		"version":"v1.0.0-alpha",
+		"tts":false,
+		"game":"Doot",
+		"ticklength":1
 	}, 
 	"admins":[
 		"admin",
@@ -13,4 +15,5 @@
 	"server":{
 		"announcements":"announcements"
 	}
+	
 }

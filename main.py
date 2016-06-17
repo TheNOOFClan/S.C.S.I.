@@ -4,7 +4,13 @@ import json
 import time
 import io
 import sys
-# import multiprocessing ...later...
+import random
+from discord.ext import commands
+
+description = '''An automod bot for auto modding
+'''
+
+bot = commands.Bot(command_prefix="!", description=description)
 
 settings = open('settings.json', 'r')
 ds = json.load(settings)
@@ -17,87 +23,97 @@ logger.addHandler(handler)
 
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
-client = discord.Client()
 
 def findChannel(name):
-    channels = list(client.get_all_channels())
-    for all in channels:
-        print(all.name)
-        if all.name == name:
-            return all
-
-@client.event
+	channels = list(bot.get_all_channels())
+	for all in channels:
+		if all.name == name:
+			return all
+		else:
+			return -1
+			
+@bot.event
 async def on_channel_delete(channel):
-    msg = "Channel {0} has been deleted!".format(channel.mention)
-    await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
-
-@client.event
+	msg = "Channel {0} has been deleted!".format(channel.mention)
+	await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+	
+@bot.event
 async def on_channel_create(channel):
     msg = "Channel {0} has been created!".format(channel.mention)
-    await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+    await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
-@client.event
+@bot.event
 async def on_member_join(member):
     msg = "New member {0} has joined the server!".format(member.mention)
-    await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+    await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
-@client.event
+@bot.event
 async def on_member_remove(member):
-    msg = "New member {0} has left the server!".format(member.mention)
-    await client.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+	msg = "Member {0} has left the server!".format(member.name)
+	await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
-@client.event
-async def on_message(message):
-    # we do not want the bot to reply to itself
-    if message.author == client.user:
-        return
-    if message.content.startswith('!test'):
-        logging.debug("'!test' command found!")
-        msg = "HELLO WORLD!"
-    elif message.content.startswith('!shutdown'):
-        msg = "Shuting down now!"
-        await client.send_message(message.channel, msg, tts=ds['bot']['tts'])
-        client.logout()
-        settings.close()
-        sys.exit()
-    elif message.content.startswith('!help'):
-        msg = "Commands: \n!echo <text>: echos text\n!test: says\"HELLO WORLD\"\n!timeup: prints up time"
-        msg += "\n!ttsOn: should turn on TTS\n!ttsOff: should turn off TTS\n!help:prints this (hard codded)"
-    elif message.content.startswith('!echo '):
-        logging.debug("'!echo' command found!")
-        msg = message.content[6:]
-    elif message.content.startswith('!timeup'):
-        logging.debug("'!timeup' command found!")
-        timeUp = time.time() - startTime
-        hoursUp = timeUp // 36000
-        timeUp %= 36000
-        minutesUp = timeUp // 60
-        timeUp = round(timeUp % 60, 0)
-        msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
-    elif message.content.startswith("!ttsOn"):
-        ds['bot']['tts'] = True
-        msg = "TTS is now on!"
-    elif message.content.startswith("!ttsOff"):
-        ds['bot']['tts'] = False
-        msg = "TTS is now off!"
-    elif message.content.startswith("!"):
-        msg = "Unknown command \"{0}\"".format(message.content)
-    try:
-        await client.send_message(message.channel, msg, tts=ds['bot']['tts'])
-    except:
-        pass
-        
-@client.event
+@bot.event
+async def on_command(command, ctx):
+	message = ctx.message
+	destination = None
+	if message.channel.is_private:
+		destination = "Private Message"
+	else:
+		destination = "#{0.channel.name} ({0.server.name})".format(message)
+		
+@bot.command()
+async def test():
+	await bot.say("HELLO WORLD!")
+	
+@bot.command()
+async def shutdown():
+	msg = "Shutting down now!"
+	await bot.say(msg)
+	bot.logout()
+	settings.close()
+	sys.exit()
+	
+@bot.command()
+async def timeup():
+	timeUp = time.time() - startTime
+	hoursUp = timeUp // 36000
+	timeUp %= 36000
+	minutesUp = timeUp // 60
+	timeUp = round(timeUp % 60, 0)
+	msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
+	await bot.say(msg)
+	 
+@bot.command(pass_context=True)
+async def tts(ctx):
+	if ctx == "on":
+		ds['bot']['tts'] = True
+		await bot.say("TTS is now on!")
+	elif ctx == "off":
+		ds['bot']['tts'] = False
+		await bot.say("TTS is now off!")
+	
+@bot.command(pass_context=True)
+async def echo(ctx):
+	print('Echoing: ', ctx.message.content[6:])
+	logger.info('Echoing: {0}'.format(ctx.message.content[6:]))
+	await bot.say(ctx.message.content[6:])
+
+@bot.event
 async def on_ready():
     print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
+    print(bot.user.name)
+    print(bot.user.id)
+    print('Game set to:')
+    print(ds['bot']['game'])
     print('------')
     logger.info('Logged in as')
-    logger.info(client.user.name)
-    logger.info(client.user.id)
+    logger.info(bot.user.name)
+    logger.info(bot.user.id)
+    logger.info('Game set to:')
+    logger.info(ds['bot']['game'])
     logger.info('------')
-            
+    await bot.change_status(game=discord.Game(name=ds['bot']['game']))
+
 startTime = time.time()
-client.run(ds['bot']["token"])
+bot.run(ds['bot']["token"])
 settings.close()
