@@ -18,6 +18,9 @@ logger.addHandler(handler)
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 client = discord.Client()
+loop = client.loop
+
+reminders = []
 
 def findChannel(name):
     channels = list(client.get_all_channels())
@@ -86,23 +89,22 @@ async def on_message(message):
         await client.send_message(message.channel, msg, tts=ds['bot']['tts'])
     except:
         pass
-        
+
 @client.event
 async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
+    print('Game set to:')
+    print(ds['bot']['game'])
     print('------')
     logger.info('Logged in as')
     logger.info(client.user.name)
     logger.info(client.user.id)
+    logger.info('Game set to:')
+    logger.info(ds['bot']['game'])
     logger.info('------')
-    
-    await client.change_status(game=discord.Game(name=ds['game']))
-    print('Game set to:')
-    print(ds['game'])
-    logger.info('Game set to')
-    logger.info(ds['game'])
-            
+    await client.change_status(game=discord.Game(name=ds['bot']['game']))
+
 startTime = time.time()
 client.run(ds['bot']["token"])
