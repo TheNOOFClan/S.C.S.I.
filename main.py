@@ -31,12 +31,12 @@ def findChannel(name):
 			return all
 		else:
 			return -1
-			
+
 @bot.event
 async def on_channel_delete(channel):
 	msg = "Channel {0} has been deleted!".format(channel.mention)
 	await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
-	
+
 @bot.event
 async def on_channel_create(channel):
     msg = "Channel {0} has been created!".format(channel.mention)
@@ -60,48 +60,48 @@ async def on_command(command, ctx):
 		destination = "Private Message"
 	else:
 		destination = "#{0.channel.name} ({0.server.name})".format(message)
-		
+
 @bot.command()
 async def test():
         '''Prints a test message'''
-	await bot.say("HELLO WORLD!")
-	
+        await bot.say("HELLO WORLD!")
+
 @bot.command()
 async def shutdown():
         '''Shuts down the bot'''
-	msg = "Shutting down now!"
-	await bot.say(msg)
-	bot.logout()
-	settings.close()
-	sys.exit()
-	
+        msg = "Shutting down now!"
+        await bot.say(msg)
+        bot.logout()
+        settings.close()
+        sys.exit()
+
 @bot.command()
 async def timeup():
         '''Displays time up'''
-	timeUp = time.time() - startTime
-	hoursUp = timeUp // 36000
-	timeUp %= 36000
-	minutesUp = timeUp // 60
-	timeUp = round(timeUp % 60, 0)
-	msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
-	await bot.say(msg)
-	 
+        timeUp = time.time() - startTime
+        hoursUp = timeUp // 36000
+        timeUp %= 36000
+        minutesUp = timeUp // 60
+        timeUp = round(timeUp % 60, 0)
+        msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
+        await bot.say(msg)
+
 @bot.command(pass_context=True)
 async def tts(ctx):
         '''Turns TTS on or off'''
-	if ctx == "on":
-		ds['bot']['tts'] = True
-		await bot.say("TTS is now on!")
-	elif ctx == "off":
-		ds['bot']['tts'] = False
-		await bot.say("TTS is now off!")
-	
+        if ctx == "on":
+                ds['bot']['tts'] = True
+                await bot.say("TTS is now on!")
+        elif ctx == "off":
+                ds['bot']['tts'] = False
+                await bot.say("TTS is now off!")
+
 @bot.command(pass_context=True)
 async def echo(ctx):
         '''Echos a message'''
-	print('Echoing: ', ctx.message.content[6:])
-	logger.info('Echoing: {0}'.format(ctx.message.content[6:]))
-	await bot.say(ctx.message.content[6:])
+        print('Echoing: ', ctx.message.content[6:])
+        logger.info('Echoing: {0}'.format(ctx.message.content[6:]))
+        await bot.say(ctx.message.content[6:])
 
 @bot.event
 async def on_ready():
