@@ -1,7 +1,7 @@
 {
 	"bot":{
 		"token":"<INSERT BOT TOKEN HERE>",
-		"version":"alpha 1.0.0",
+		"version":"v1.0.0-alpha",
 		"tts":false,
 		"game":"Doot",
 		"ticklength":1

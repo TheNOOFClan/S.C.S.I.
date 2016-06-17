@@ -94,7 +94,9 @@ async def tts(ctx):
 	
 @bot.command(pass_context=True)
 async def echo(ctx):
-	await bot.say(str(ctx.message))
+	print('Echoing: ', ctx.message.content[6:])
+	logger.info('Echoing: {0}'.format(ctx.message.content[6:]))
+	await bot.say(ctx.message.content[6:])
 
 @bot.event
 async def on_ready():
