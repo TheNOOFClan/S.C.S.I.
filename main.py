@@ -63,10 +63,12 @@ async def on_command(command, ctx):
 		
 @bot.command()
 async def test():
+        '''Prints a test message'''
 	await bot.say("HELLO WORLD!")
 	
 @bot.command()
 async def shutdown():
+        '''Shuts down the bot'''
 	msg = "Shutting down now!"
 	await bot.say(msg)
 	bot.logout()
@@ -75,6 +77,7 @@ async def shutdown():
 	
 @bot.command()
 async def timeup():
+        '''Displays time up'''
 	timeUp = time.time() - startTime
 	hoursUp = timeUp // 36000
 	timeUp %= 36000
@@ -85,6 +88,7 @@ async def timeup():
 	 
 @bot.command(pass_context=True)
 async def tts(ctx):
+        '''Turns TTS on or off'''
 	if ctx == "on":
 		ds['bot']['tts'] = True
 		await bot.say("TTS is now on!")
@@ -94,6 +98,7 @@ async def tts(ctx):
 	
 @bot.command(pass_context=True)
 async def echo(ctx):
+        '''Echos a message'''
 	print('Echoing: ', ctx.message.content[6:])
 	logger.info('Echoing: {0}'.format(ctx.message.content[6:]))
 	await bot.say(ctx.message.content[6:])
