@@ -103,6 +103,12 @@ async def echo(ctx):
         logger.info('Echoing: {0}'.format(ctx.message.content[6:]))
         await bot.say(ctx.message.content[6:])
 
+@bot.command(pass_context=True)
+async def changegame(ctx):
+        gameName = ctx.message.content[11:]
+        await bot.change_status(game=discord.Game(name=gameName))
+        await bot.say("Changing game to: \"{0}\"!".format(gameName))
+
 @bot.event
 async def on_ready():
     print('Logged in as')
