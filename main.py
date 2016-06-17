@@ -49,7 +49,7 @@ async def on_member_join(member):
 
 @bot.event
 async def on_member_remove(member):
-	msg = "New member {0} has left the server!".format(member.mention)
+	msg = "Member {0} has left the server!".format(member.name)
 	await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
 @bot.event
