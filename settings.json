@@ -1,9 +1,9 @@
 {
 	"bot":{
-		"token":"<INSERT BOT TOKEN HERE>",
+		"token":"<BOT TOKEN HERE>",
 		"version":"v1.0.0-alpha",
 		"tts":false,
-		"game":"Doot",
+		"game":"with list(entity.human.programmer)",
 		"ticklength":1
 	}, 
 	"admins":[

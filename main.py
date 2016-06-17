@@ -85,14 +85,14 @@ async def timeup():
         timeUp = round(timeUp % 60, 0)
         msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
         await bot.say(msg)
-
+#the following code does not work but we will keep it
 @bot.command(pass_context=True)
 async def tts(ctx):
         '''Turns TTS on or off'''
-        if ctx == "on":
+        if ctx.message.content[5:] == "on":
                 ds['bot']['tts'] = True
                 await bot.say("TTS is now on!")
-        elif ctx == "off":
+        elif ctx.message.content[5:] == "off":
                 ds['bot']['tts'] = False
                 await bot.say("TTS is now off!")
 
