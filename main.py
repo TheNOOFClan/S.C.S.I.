@@ -10,10 +10,12 @@ from discord.ext import commands
 description = '''An automod bot for auto modding
 '''
 
-bot = commands.Bot(command_prefix="!", description=description)
-
 settings = open('settings.json', 'r')
 ds = json.load(settings)
+
+prefix = ds['bot']['prefix']
+
+bot = commands.Bot(command_prefix=prefix, description=description)
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
@@ -89,23 +91,23 @@ async def timeup():
 @bot.command(pass_context=True)
 async def tts(ctx):
         '''Turns TTS on or off'''
-        if ctx.message.content[5:] == "on":
+        if ctx.message.content[len(prefix) + 4:] == "on":
                 ds['bot']['tts'] = True
                 await bot.say("TTS is now on!")
-        elif ctx.message.content[5:] == "off":
+        elif ctx.message.content[len(prefix) + 4:] == "off":
                 ds['bot']['tts'] = False
                 await bot.say("TTS is now off!")
 
 @bot.command(pass_context=True)
 async def echo(ctx):
         '''Echos a message'''
-        print('Echoing: ', ctx.message.content[6:])
-        logger.info('Echoing: {0}'.format(ctx.message.content[6:]))
-        await bot.say(ctx.message.content[6:])
+        print('Echoing: ', ctx.message.content[len(prefix): + 5])
+        logger.info('Echoing: {0}'.format(ctx.message.content[len(prefix) + 5:]))
+        await bot.say(ctx.message.content[len(prefix) + 5:])
 
 @bot.command(pass_context=True)
 async def changegame(ctx):
-        gameName = ctx.message.content[11:]
+        gameName = ctx.message.content[len(prefix) + 10:]
         await bot.change_status(game=discord.Game(name=gameName))
         await bot.say("Changing game to: \"{0}\"!".format(gameName))
 
