@@ -27,7 +27,7 @@ print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], disc
 def findChannel(name):
 	channels = list(bot.get_all_channels())
 	for all in channels:
-		if all.name = name
+		if all.name == name
 			return all
 		else:
 			return -1
@@ -66,11 +66,34 @@ async def test():
 	await bot.say("HELLO WORLD!")
 	
 @bot.command()
-async def 
+async def shutdown():
+	msg = "Shutting down now!"
+	await bot.say(msg)
+	bot.logout()
+	settings.close()
+	sys.exit()
+	
+@bot.command()
+async def timeup():
+	 timeUp = time.time() - startTime
+     hoursUp = timeUp // 36000
+     timeUp %= 36000
+     minutesUp = timeUp // 60
+     timeUp = round(timeUp % 60, 0)
+     msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
+     
+@bot.command(pass_context=True)
+async def tts(ctx):
+	if ctx == "on":
+		ds['bot']['tts'] = True
+		bot.say("TTS is now on!")
+	elif ctx == "off":
+		ds['bot']['tts'] = False
+		bot.say("TTS is now off!")
 	
 @bot.command(pass_context=True)
 async def echo(ctx):
-	await bot.say("
+	await bot.say(ctx)
 
 @bot.event
 async def on_ready():
