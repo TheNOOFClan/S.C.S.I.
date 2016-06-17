@@ -49,8 +49,8 @@ async def on_member_join(member):
 
 @bot.event
 async def on_member_remove(member):
-    msg = "New member {0} has left the server!".format(member.mention)
-await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+	msg = "New member {0} has left the server!".format(member.mention)
+	await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_command(command, ctx):
@@ -75,25 +75,26 @@ async def shutdown():
 	
 @bot.command()
 async def timeup():
-	 timeUp = time.time() - startTime
-     hoursUp = timeUp // 36000
-     timeUp %= 36000
-     minutesUp = timeUp // 60
-     timeUp = round(timeUp % 60, 0)
-     msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
-     
+	timeUp = time.time() - startTime
+	hoursUp = timeUp // 36000
+	timeUp %= 36000
+	minutesUp = timeUp // 60
+	timeUp = round(timeUp % 60, 0)
+	msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
+	await bot.say(msg)
+	 
 @bot.command(pass_context=True)
 async def tts(ctx):
 	if ctx == "on":
 		ds['bot']['tts'] = True
-		bot.say("TTS is now on!")
+		await bot.say("TTS is now on!")
 	elif ctx == "off":
 		ds['bot']['tts'] = False
-		bot.say("TTS is now off!")
+		await bot.say("TTS is now off!")
 	
 @bot.command(pass_context=True)
 async def echo(ctx):
-	await bot.say(ctx)
+	await bot.say(str(ctx.message))
 
 @bot.event
 async def on_ready():
