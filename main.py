@@ -99,18 +99,18 @@ async def echo(ctx):
 @bot.event
 async def on_ready():
     print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
+    print(bot.user.name)
+    print(bot.user.id)
     print('Game set to:')
     print(ds['bot']['game'])
     print('------')
     logger.info('Logged in as')
-    logger.info(client.user.name)
-    logger.info(client.user.id)
+    logger.info(bot.user.name)
+    logger.info(bot.user.id)
     logger.info('Game set to:')
     logger.info(ds['bot']['game'])
     logger.info('------')
-    await client.change_status(game=discord.Game(name=ds['bot']['game']))
+    await bot.change_status(game=discord.Game(name=ds['bot']['game']))
 
 startTime = time.time()
 bot.run(ds['bot']["token"])

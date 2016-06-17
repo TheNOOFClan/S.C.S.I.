@@ -1,6 +1,6 @@
 {
 	"bot":{
-		"token":"<INSERT BOT TOKEN HERE>",
+		"token":"MTkyODAxNDcyMzg2MTcwODkw.CkOO3g.VM1vUXO4RkvLxEUJcWjOfPCNum4",
 		"version":"v1.0.0",
 		"tts":false,
 		"game":"Doot",
@@ -14,6 +14,6 @@
 	],
 	"server":{
 		"announcements":"announcements"
-	},
+	}
 	
 }
