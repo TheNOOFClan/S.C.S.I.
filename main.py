@@ -24,6 +24,34 @@ logger.addHandler(handler)
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 
+def findChannel(name):
+	channels = list(bot.get_all_channels())
+	for all in channels:
+		if all.name = name
+			return all
+		else:
+			return -1
+			
+@bot.event
+async def on_channel_delete(channel):
+	msg = "Channel {0} has been deleted!".format(channel.mention)
+	await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+	
+@bot.event
+async def on_channel_create(channel):
+    msg = "Channel {0} has been created!".format(channel.mention)
+    await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+
+@bot.event
+async def on_member_join(member):
+    msg = "New member {0} has joined the server!".format(member.mention)
+    await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+
+@bot.event
+async def on_member_remove(member):
+    msg = "New member {0} has left the server!".format(member.mention)
+await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+
 @bot.event
 async def on_command(command, ctx):
 	message = ctx.message
@@ -37,8 +65,11 @@ async def on_command(command, ctx):
 async def test():
 	await bot.say("HELLO WORLD!")
 	
+@bot.command()
+async def 
+	
 @bot.command(pass_context=True)
-async daf echo(ctx):
+async def echo(ctx):
 	await bot.say("
 
 @bot.event
