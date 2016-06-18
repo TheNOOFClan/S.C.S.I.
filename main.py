@@ -34,6 +34,13 @@ def findChannel(name):
 		else:
 			return -1
 
+def checkRole(user, roleRec):
+        ok = False
+        for all in list(user.roles):
+                if all.name == roleRec:
+                        ok = True
+        return ok
+
 @bot.event
 async def on_channel_delete(channel):
 	msg = "Channel {0} has been deleted!".format(channel.mention)
@@ -68,14 +75,23 @@ async def test():
         '''Prints a test message'''
         await bot.say("HELLO WORLD!")
 
-@bot.command()
-async def shutdown():
+@bot.command(pass_context=True)
+async def shutdown(ctx):
         '''Shuts down the bot'''
-        msg = "Shutting down now!"
-        await bot.say(msg)
-        bot.logout()
-        settings.close()
-        sys.exit()
+        author = ctx.message.author
+        if checkRole(author, ds['bot']['botmin']):
+                msg = "Shutting down now!"
+                await bot.say(msg)
+                bot.logout()
+                settings.close()
+                sys.exit()
+        else:
+                await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
+        
+@bot.command()
+async def pls():
+        await bot.say("I am sorry, I can not be better")
+
 
 @bot.command()
 async def timeup():

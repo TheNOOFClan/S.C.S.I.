@@ -5,7 +5,8 @@
 		"tts":false,
 		"prefix":"!",
 		"game":"with entity.human.programmer",
-		"ticklength":1
+		"ticklength":1,
+		"botmin":"BOTMIN"
 	}, 
 	"admins":[
 		"admin",
