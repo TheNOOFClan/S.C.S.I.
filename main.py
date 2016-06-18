@@ -34,6 +34,13 @@ def findChannel(name):
 		else:
 			return -1
 
+def checkRole(user, roleRec):
+        ok = False
+        for all in list(user.roles):
+                if all.name == roleRec:
+                        ok = True
+        return ok
+
 @bot.event
 async def on_channel_delete(channel):
 	msg = "Channel {0} has been deleted!".format(channel.mention)
@@ -68,14 +75,23 @@ async def test():
         '''Prints a test message'''
         await bot.say("HELLO WORLD!")
 
-@bot.command()
-async def shutdown():
+@bot.command(pass_context=True)
+async def shutdown(ctx):
         '''Shuts down the bot'''
-        msg = "Shutting down now!"
-        await bot.say(msg)
-        bot.logout()
-        settings.close()
-        sys.exit()
+        author = ctx.message.author
+        if checkRole(author, ds['bot']['botmin']):
+                msg = "Shutting down now!"
+                await bot.say(msg)
+                bot.logout()
+                settings.close()
+                sys.exit()
+        else:
+                await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
+        
+@bot.command()
+async def pls():
+        await bot.say("I am sorry, I can not be better")
+
 
 @bot.command()
 async def timeup():
@@ -87,6 +103,7 @@ async def timeup():
         timeUp = round(timeUp % 60, 0)
         msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
         await bot.say(msg)
+        
 #the following code does not work but we will keep it
 @bot.command(pass_context=True)
 async def tts(ctx):
@@ -107,10 +124,14 @@ async def echo(ctx):
 
 @bot.command(pass_context=True)
 async def changegame(ctx):
-        gameName = ctx.message.content[len(prefix) + 10:]
-        await bot.change_status(game=discord.Game(name=gameName))
-        await bot.say("Changing game to: \"{0}\"!".format(gameName))
-
+        author = ctx.message.author
+        if checkRole(author, ds['bot']['botmin']):
+                gameName = ctx.message.content[len(prefix) + 10:]
+                await bot.change_status(game=discord.Game(name=gameName))
+                await bot.say("Changing game to: \"{0}\"!".format(gameName))
+        else:
+                await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
+                
 @bot.event
 async def on_ready():
     print('Logged in as')
