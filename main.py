@@ -1,4 +1,5 @@
 import discord
+import asyncio
 import logging
 import json
 import time
@@ -10,12 +11,16 @@ from discord.ext import commands
 description = '''An automod bot for auto modding
 '''
 
+reminders = []
+
 settings = open('settings.json', 'r')
 ds = json.load(settings)
 
 prefix = ds['bot']['prefix']
 
 bot = commands.Bot(command_prefix=prefix, description=description)
+
+loop = bot.loop
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
@@ -40,6 +45,13 @@ def checkRole(user, roleRec):
         if all.name == roleRec:
             ok = True
     return ok
+
+@asyncio.coroutine
+async def timer():
+    await bot.wait_until_ready()
+    while not bot.is_closed:
+        loop.create_task(on_tick())
+        await asyncio.sleep(ds['bot']['ticklength'])
 
 @bot.event
 async def on_channel_delete(channel):
@@ -82,6 +94,7 @@ async def shutdown(ctx):
     if checkRole(author, ds['bot']['botmin']):
         msg = "Shutting down now!"
         await bot.say(msg)
+        timerTask.cancel()
         bot.logout()
         settings.close()
         sys.exit()
@@ -119,7 +132,7 @@ async def tts(ctx):
 @bot.command(pass_context=True)
 async def echo(ctx):
     '''Echos a message'''
-    print('Echoing: ', ctx.message.content[len(prefix): + 5])
+    print('Echoing: ', ctx.message.content[len(prefix) + 5:])
     logger.info('Echoing: {0}'.format(ctx.message.content[len(prefix) + 5:]))
     await bot.say(ctx.message.content[len(prefix) + 5:])
 
@@ -133,7 +146,30 @@ async def changegame(ctx):
         await bot.say("Changing game to: \"{0}\"!".format(gameName))
     else:
         await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
-                
+
+@bot.command(pass_context=True)
+async def remind(ctx):
+    '''Sets a reminder for several seconds in the future'''
+    params = ctx.message.content.split(' ')
+    msg = ' '.join(params[2:])
+    chan = ctx.message.channel
+    try:
+        delay = int(float(params[1]) / ds['bot']['ticklength'])
+        if delay == 0:
+            delay = 1
+        reminders.append([delay, chan, msg])
+        await bot.say("Reminder set")
+    except ValueError:
+        await bot.say("Incorrect format for the delay")
+
+@asyncio.coroutine
+async def on_tick():
+    for rem in reminders:
+        rem[0] -= 1
+        if rem[0] == 0:
+            await bot.send_message(rem[1], rem[2])
+            reminders.remove(rem)
+
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -151,5 +187,6 @@ async def on_ready():
     await bot.change_status(game=discord.Game(name=ds['bot']['game']))
 
 startTime = time.time()
+timerTask = loop.create_task(timer())
 bot.run(ds['bot']["token"])
 settings.close()
