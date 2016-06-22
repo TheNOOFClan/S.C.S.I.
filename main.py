@@ -87,29 +87,36 @@ async def test():
         '''Prints a test message'''
         await bot.say("HELLO WORLD!")
 
-@bot.command(pass_context=True)
-async def poll(ctx):
-    msgctnt = ctx.message.content[len(prefix) + 4:]
-    msgctnt = msgctnt.split()
+@bot.command()
+async def poll(time, description, *options):
+    '''Creates a poll'''
     pollNum = ds['bot']['pollNum']
     ds['bot']['pollNum'] += 1
-    time = int(msgctnt[0])
-    desc = msgctnt[1]
-    pos = {}
-    for all in msgctnt[2:]:
-        pos[all] = 0
-    polls.append({"time":time, 'pollNum':pollNum, "desc":desc, "pos":pos})
-    await bot.say("New poll created! #{0}, posabilities: {1}".format(pollNum, pos))
+    try:
+        time = int(time)
+        desc = description
+        pos = {}
+        for all in options:
+            pos[all] = 0
+        polls.append({"time":time, 'pollNum':pollNum, "desc":desc, "pos":pos})
+        await bot.say("New poll created! #{0}, possibilities: {1}".format(pollNum, pos))
+    except:
+        await bot.say('Incorrect number format')
 
-@bot.command(pass_context=True)
-async def vote(ctx):
-    msgctnt = ctx.message.content[len(prefix) + 4:]
-    msgctnt = msgctnt.split()
-    pollNum = int(msgctnt[0])
-    pos = msgctnt[1]
-    for all in polls:
-        if all['pollNum'] == pollNum:
-            all['pos'][pos] += 1
+@bot.command()
+async def vote(number, option):
+    '''Votes on a poll'''
+    try:
+        pollNum = int(number)
+        pos = option
+        for all in polls:
+            if all['pollNum'] == pollNum:
+                if pos in all['pos'].keys():
+                    all['pos'][pos] += 1
+                    break # Why waste valuable processing cycles?
+                await bot.say('Invalid option for that poll')
+    except ValueError:
+        await bot.say('Incorrect number format')
 
 @bot.command(pass_context=True)
 async def shutdown(ctx):
