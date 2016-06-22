@@ -12,6 +12,7 @@ description = '''An automod bot for auto modding
 '''
 
 reminders = []
+polls = []
 
 settings = open('settings.json', 'r')
 ds = json.load(settings)
@@ -36,8 +37,7 @@ def findChannel(name):
     for all in channels:
         if all.name == name:
             return all
-        else:
-            return -1
+    return -1
 
 def checkRole(user, roleRec):
     ok = False
@@ -86,6 +86,30 @@ async def on_command(command, ctx):
 async def test():
         '''Prints a test message'''
         await bot.say("HELLO WORLD!")
+
+@bot.command(pass_context=True)
+async def poll(ctx):
+    msgctnt = ctx.message.content[len(prefix) + 4:]
+    msgctnt = msgctnt.split()
+    pollNum = ds['bot']['pollNum']
+    ds['bot']['pollNum'] += 1
+    time = int(msgctnt[0])
+    desc = msgctnt[1]
+    pos = {}
+    for all in msgctnt[2:]:
+        pos[all] = 0
+    polls.append({"time":time, 'pollNum':pollNum, "desc":desc, "pos":pos})
+    await bot.say("New poll created! #{0}, posabilities: {1}".format(pollNum, pos))
+
+@bot.command(pass_context=True)
+async def vote(ctx):
+    msgctnt = ctx.message.content[len(prefix) + 4:]
+    msgctnt = msgctnt.split()
+    pollNum = int(msgctnt[0])
+    pos = msgctnt[1]
+    for all in polls:
+        if all['pollNum'] == pollNum:
+            all['pos'][pos] += 1
 
 @bot.command(pass_context=True)
 async def shutdown(ctx):
@@ -169,6 +193,13 @@ async def on_tick():
         if rem[0] == 0:
             await bot.send_message(rem[1], rem[2])
             reminders.remove(rem)
+
+    for poll in polls:
+        poll["time"] -= 1
+        if poll["time"] == 0:
+            await bot.send_message(findChannel(ds['server']['pollChannel']), poll['pos'])
+            await bot.send_message(findChannel(ds['server']['pollChannel']), "poll #{0} is now over!".format(poll['pollNum']))
+            polls.remove(poll)
 
 @bot.event
 async def on_ready():

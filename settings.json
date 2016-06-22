@@ -7,7 +7,8 @@
 		"game":"with entity.human.programmer",
 		"ticklength":1,
 		"botmin":"BOTMIN",
-		"shutdown_timeout":60
+		"shutdown_timeout":60,
+		"pollNum":0
 	}, 
 	"admins":[
 		"admin",
@@ -16,7 +17,8 @@
 		"here"
 	],
 	"server":{
-		"announcements":"announcements"
+		"announcements":"announcements",
+		"pollChannel":"polls"
 	}
 	
 }
