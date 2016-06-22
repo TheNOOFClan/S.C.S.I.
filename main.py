@@ -118,43 +118,43 @@ async def timeup():
     msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
     await bot.say(msg)
         
-#the following code does not work but we will keep it
-@bot.command(pass_context=True)
-async def tts(ctx):
-    '''Turns TTS on or off'''
-    if ctx.message.content[len(prefix) + 4:] == "on":
-        ds['bot']['tts'] = True
-        await bot.say("TTS is now on!")
-    elif ctx.message.content[len(prefix) + 4:] == "off":
-        ds['bot']['tts'] = False
-        await bot.say("TTS is now off!")
+#the following code does not work, and so we will not keep it
+#@bot.command(pass_context=True)
+#async def tts(ctx):
+#    '''Turns TTS on or off'''
+#    if ctx.message.content[len(prefix) + 4:] == "on":
+#        ds['bot']['tts'] = True
+#        await bot.say("TTS is now on!")
+#    elif ctx.message.content[len(prefix) + 4:] == "off":
+#        ds['bot']['tts'] = False
+#        await bot.say("TTS is now off!")
 
-@bot.command(pass_context=True)
-async def echo(ctx):
+@bot.command()
+async def echo(*message):
     '''Echos a message'''
-    print('Echoing: ', ctx.message.content[len(prefix) + 5:])
-    logger.info('Echoing: {0}'.format(ctx.message.content[len(prefix) + 5:]))
-    await bot.say(ctx.message.content[len(prefix) + 5:])
+    output = ' '.join(message)
+    print('Echoing: ', output)
+    logger.info('Echoing: {0}'.format(output))
+    await bot.say(output)
 
 @bot.command(pass_context=True)
-async def changegame(ctx):
+async def changegame(ctx, *game):
     '''Changes the game being displayed'''
     author = ctx.message.author
     if checkRole(author, ds['bot']['botmin']):
-        gameName = ctx.message.content[len(prefix) + 10:]
+        gameName = ' '.join(game)
         await bot.change_status(game=discord.Game(name=gameName))
         await bot.say("Changing game to: \"{0}\"!".format(gameName))
     else:
         await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
 
 @bot.command(pass_context=True)
-async def remind(ctx):
+async def remind(ctx, delay, *message):
     '''Sets a reminder for several seconds in the future'''
-    params = ctx.message.content.split(' ')
-    msg = ' '.join(params[2:])
+    msg = ' '.join(message)
     chan = ctx.message.channel
     try:
-        delay = int(float(params[1]) / ds['bot']['ticklength'])
+        delay = int(float(delay) / ds['bot']['ticklength'])
         if delay == 0:
             delay = 1
         reminders.append([delay, chan, msg])
