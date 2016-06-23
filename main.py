@@ -122,7 +122,7 @@ async def vote(number, option):
 async def timeto(ticks):
     '''says how much time will pass in <ticks> ticks'''
     try:
-        ticks = int(''.join(ticks))
+        ticks = int(ticks)
         seconds = ds['bot']['ticklength'] * ticks
         hours = seconds // 36000
         seconds %= 36000
@@ -208,6 +208,20 @@ async def remind(ctx, delay, *message):
         await bot.say("Reminder set")
     except ValueError:
         await bot.say("Incorrect format for the delay")
+
+@bot.command(pass_context=True)
+async def backup(ctx, num=1000):
+    '''Backs up <num> messages in the current channel. if num is not provided, defaults to 1000'''
+    try:
+        num = int(num)
+        f = open(ctx.message.channel.name + '-' + str(time.time()) + '.log', 'w')
+        await bot.say('Starting backup')
+        async for message in bot.logs_from(ctx.message.channel, limit=num):
+            f.write(str(message.timestamp) + ': ' + message.author.name + '(' + str(message.author.nick) + '):' + message.content + '\n')
+        f.close()
+        await bot.say('Backup finished')
+    except ValueError:
+        await bot.say('Incorrect number format')
 
 @asyncio.coroutine
 async def on_tick():
