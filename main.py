@@ -118,6 +118,22 @@ async def vote(number, option):
     except ValueError:
         await bot.say('Incorrect number format')
 
+@bot.command()
+async def timeto(ticks):
+    '''says how much time will pass in <ticks> ticks'''
+    try:
+        ticks = int(''.join(ticks))
+        seconds = ds['bot']['ticklength'] * ticks
+        hours = seconds // 36000
+        seconds %= 36000
+        minutes = seconds // 60
+        seconds %= 60
+        seconds = round(seconds, 0)
+        msg = "{0} ticks is {1} hours, {2} minutes, {3} seconds long".format(ticks, hours, minutes, seconds)
+        await bot.say(msg)
+    except ValueError:
+        await bot.say("Invalid arguments")
+
 @bot.command(pass_context=True)
 async def shutdown(ctx):
     '''Shuts down the bot'''
