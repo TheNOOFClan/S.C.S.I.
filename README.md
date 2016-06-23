@@ -12,7 +12,7 @@
 ***
 S.C.S.I. is an auto mod bot written by some friends licensed under MIT license for discord servers. Anyone & everyone is welcome to fork and contribute.
 
-# Current Versioning system:
+# Current Versioning System & Branch Hierarchy:
 ## < merges to master >.< merges to major >.< merges to minor >
 Versioning and branch hierarchy:
 
