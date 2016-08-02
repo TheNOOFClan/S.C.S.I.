@@ -147,12 +147,6 @@ async def shutdown(ctx):
         sys.exit()
     else:
         await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
-        
-@bot.command()
-async def pls():
-    '''Exists'''
-    await bot.say("I am sorry, I can not be better")
-
 
 @bot.command()
 async def timeup():
