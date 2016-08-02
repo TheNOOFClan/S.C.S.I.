@@ -6,6 +6,7 @@ import time
 import io
 import sys
 import random
+import datetime
 from discord.ext import commands
 
 description = '''An automod bot for auto modding
@@ -33,6 +34,7 @@ logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"]
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 
 def findChannel(name):
+    '''finds the channel'''
     channels = list(bot.get_all_channels())
     for all in channels:
         if all.name == name:
@@ -40,12 +42,39 @@ def findChannel(name):
     return -1
 
 def checkRole(user, roleRec):
+    '''Checks if the user has the recuired role'''
     ok = False
     for all in list(user.roles):
         if all.name == roleRec:
             ok = True
     return ok
 
+def timeToTicks(time):
+    '''converts time into seconds than to ticks'''
+    time = time.lower()
+    time = time.split(',')
+    timeSec = 0
+    for all in time:
+        if "w" in all or "week" in all or "weeks" in all:
+            tmp = all.strip('weks')
+            timeSec += datetime.timedelta(weeks=int(tmp)).total_seconds()
+        elif "d" in all or "day" in all or "days" in all:
+            tmp = all.strip('days')
+            timeSec += datetime.timedelta(days=int(tmp)).total_seconds()
+        elif "h" in all or "hour" in all or "hours" in all:
+            tmp = all.strip('hours')
+            timeSec += datetime.timedelta(hours=int(tmp)).total_seconds()
+        elif "m" in all or "minute" in all or "minutes" in all:
+            tmp = all.strip('minutes')
+            timeSec += datetime.timedelta(minutes=int(tmp)).total_seconds()
+        elif "s" in all or "second" in all or "seconds" in all:
+            tmp = all.strip('second')
+            timeSec += int(tmp)
+        else:
+            tmp = all.strip('ticks')
+            timeSec += int(tmp) * ds['bot']['ticklength']        
+    return timeSec // ds['bot']['ticklength']
+            
 @asyncio.coroutine
 async def timer():
     await bot.wait_until_ready()
@@ -93,7 +122,8 @@ async def poll(time, description, *options):
     pollNum = ds['bot']['pollNum']
     ds['bot']['pollNum'] += 1
     try:
-        time = int(time)
+##        time = int(time)
+        time = timeToTicks(time)
         desc = description
         pos = {}
         for all in options:
@@ -195,7 +225,13 @@ async def remind(ctx, delay, *message):
     msg = ' '.join(message)
     chan = ctx.message.channel
     try:
-        delay = int(float(delay) / ds['bot']['ticklength'])
+## following code kept for posterity
+##        delay = int(float(delay) / ds['bot']['ticklength'])
+##        if delay == 0:
+##            delay = 1
+##        reminders.append([delay, chan, msg])
+##        await bot.say("Reminder set")
+        delay = timeToTicks(delay)
         if delay == 0:
             delay = 1
         reminders.append([delay, chan, msg])
