@@ -41,6 +41,15 @@ def findChannel(name):
             return all
     return -1
 
+## may not get used but I'm just keeping it
+def findUser(id):
+    users = list(bot.get_all_members())
+    for all in users:
+        name = ''.join(str(all).split('#').pop(0))
+        if name == id:
+            return all
+    return -1
+
 def checkRole(user, roleRec):
     '''Checks if the user has the recuired role'''
     ok = False
@@ -72,9 +81,9 @@ def timeToTicks(time):
             timeSec += int(tmp)
         else:
             tmp = all.strip('ticks')
-            timeSec += int(tmp) * ds['bot']['ticklength']        
+            timeSec += int(tmp) * ds['bot']['ticklength']
     return timeSec // ds['bot']['ticklength']
-            
+
 @asyncio.coroutine
 async def timer():
     await bot.wait_until_ready()
@@ -150,7 +159,8 @@ async def vote(number, option):
 
 @bot.command()
 async def timeto(ticks):
-    '''says how much time will pass in <ticks> ticks'''
+    '''says how much time will pass in <ticks> ticks
+    !!obsolite!!'''
     try:
         ticks = int(''.join(ticks))
         seconds = ds['bot']['ticklength'] * ticks
@@ -188,7 +198,7 @@ async def timeup():
     timeUp = round(timeUp % 60, 0)
     msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
     await bot.say(msg)
-        
+
 #the following code does not work, and so we will not keep it
 #@bot.command(pass_context=True)
 #async def tts(ctx):
@@ -238,6 +248,23 @@ async def remind(ctx, delay, *message):
         await bot.say("Reminder set")
     except ValueError:
         await bot.say("Incorrect format for the delay")
+
+@bot.command(pass_context=True)
+async def who(ctx, user):
+    '''Gives info on a mentioned user'''
+    try:
+        users = list(bot.get_all_members())
+        for all in users:
+            if all.mentioned_in(ctx.message):
+                user = all
+                break
+        if user == None:
+            await bot.say("mention a user!")
+        msg = "Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nAvatar URL: {4}\nCreated: {5}\nNickname: {6}".format(user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
+        await bot.say(msg)
+        await bot.say(str(user))
+    except:
+            await bot.say("Please mention a user!")
 
 @asyncio.coroutine
 async def on_tick():

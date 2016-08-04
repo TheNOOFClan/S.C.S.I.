@@ -18,7 +18,8 @@
 	],
 	"server":{
 		"announcements":"announcements",
-		"pollChannel":"polls"
+		"pollChannel":"polls",
+		"adminLog":"admin_log"
 	}
 	
 }
