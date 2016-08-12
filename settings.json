@@ -1,6 +1,6 @@
 {
 	"bot":{
-		"token":"<INSERT BOT TOKEN HERE",
+		"token":"<INSERT BOT TOKEN HERE>",
 		"version":"v0.3",
 		"tts":false,
 		"prefix":"!",
