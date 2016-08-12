@@ -1,7 +1,7 @@
 {
 	"bot":{
-		"token":"<INSERT BOT TOKEN HERE>",
-		"version":"v0.2",
+		"token":"<INSERT BOT TOKEN HERE",
+		"version":"v0.3",
 		"tts":false,
 		"prefix":"!",
 		"game":"with entity.human.programmer",
@@ -16,10 +16,13 @@
 		"ids",
 		"here"
 	],
-	"server":{
-		"announcements":"announcements",
-		"pollChannel":"polls",
-		"adminLog":"admin_log"
-	}
+	"servers":[
+		{
+			"id":"SERVER ID",
+			"announcements":"CHANNEL ID",
+			"poll":"",
+			"adminLog":""
+		}
+	]
 	
 }
