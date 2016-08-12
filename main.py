@@ -6,6 +6,7 @@ import time
 import io
 import sys
 import random
+import datetime
 from discord.ext import commands
 
 description = '''An automod bot for auto modding
@@ -32,19 +33,57 @@ logger.addHandler(handler)
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 
-def findChannel(name):
-    channels = list(bot.get_all_channels())
-    for all in channels:
-        if all.name == name:
+def findServer(idnet):
+    return bot.get_server(ident)
+
+def findChannel(server, channel):
+    '''finds the channel'''
+    for all in ds['servers']:
+        if all['id'] == server:
+            return bot.get_channel(all[channel])
+
+## may not get used but I'm just keeping it
+def findUser(id):
+    users = list(bot.get_all_members())
+    for all in users:
+        name = ''.join(str(all).split('#').pop(0))
+        if name == id:
             return all
     return -1
 
 def checkRole(user, roleRec):
+    '''Checks if the user has the recuired role'''
     ok = False
     for all in list(user.roles):
         if all.name == roleRec:
             ok = True
     return ok
+
+def timeToTicks(time):
+    '''converts time into seconds than to ticks'''
+    time = time.lower()
+    time = time.split(',')
+    timeSec = 0
+    for all in time:
+        if "w" in all or "week" in all or "weeks" in all:
+            tmp = all.strip('weks')
+            timeSec += datetime.timedelta(weeks=int(tmp)).total_seconds()
+        elif "d" in all or "day" in all or "days" in all:
+            tmp = all.strip('days')
+            timeSec += datetime.timedelta(days=int(tmp)).total_seconds()
+        elif "h" in all or "hour" in all or "hours" in all:
+            tmp = all.strip('hours')
+            timeSec += datetime.timedelta(hours=int(tmp)).total_seconds()
+        elif "m" in all or "minute" in all or "minutes" in all:
+            tmp = all.strip('minutes')
+            timeSec += datetime.timedelta(minutes=int(tmp)).total_seconds()
+        elif "s" in all or "second" in all or "seconds" in all:
+            tmp = all.strip('second')
+            timeSec += int(tmp)
+        else:
+            tmp = all.strip('ticks')
+            timeSec += int(tmp) * ds['bot']['ticklength']
+    return timeSec // ds['bot']['ticklength']
 
 @asyncio.coroutine
 async def timer():
@@ -87,18 +126,20 @@ async def test():
         '''Prints a test message'''
         await bot.say("HELLO WORLD!")
 
-@bot.command()
-async def poll(time, description, *options):
+@bot.command(pass_context=True)
+async def poll(ctx, time, description, *options):
     '''Creates a poll'''
     pollNum = ds['bot']['pollNum']
     ds['bot']['pollNum'] += 1
     try:
-        time = int(time)
+##        time = int(time)
+        time = timeToTicks(time)
         desc = description
         pos = {}
+        server = ctx.message.server.id
         for all in options:
             pos[all] = 0
-        polls.append({"time":time, 'pollNum':pollNum, "desc":desc, "pos":pos})
+        polls.append({"time":time, 'pollNum':pollNum, "desc":desc, "pos":pos, "server":server})
         await bot.say("New poll created! #{0}, possibilities: {1}".format(pollNum, pos))
     except:
         await bot.say('Incorrect number format')
@@ -120,7 +161,8 @@ async def vote(number, option):
 
 @bot.command()
 async def timeto(ticks):
-    '''says how much time will pass in <ticks> ticks'''
+    '''says how much time will pass in <ticks> ticks
+    !!obsolite!!'''
     try:
         ticks = int(''.join(ticks))
         seconds = ds['bot']['ticklength'] * ticks
@@ -158,7 +200,7 @@ async def timeup():
     timeUp = round(timeUp % 60, 0)
     msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
     await bot.say(msg)
-        
+
 #the following code does not work, and so we will not keep it
 #@bot.command(pass_context=True)
 #async def tts(ctx):
@@ -195,13 +237,36 @@ async def remind(ctx, delay, *message):
     msg = ' '.join(message)
     chan = ctx.message.channel
     try:
-        delay = int(float(delay) / ds['bot']['ticklength'])
+## following code kept for posterity
+##        delay = int(float(delay) / ds['bot']['ticklength'])
+##        if delay == 0:
+##            delay = 1
+##        reminders.append([delay, chan, msg])
+##        await bot.say("Reminder set")
+        delay = timeToTicks(delay)
         if delay == 0:
             delay = 1
         reminders.append([delay, chan, msg])
         await bot.say("Reminder set")
     except ValueError:
         await bot.say("Incorrect format for the delay")
+
+@bot.command(pass_context=True)
+async def who(ctx, user):
+    '''Gives info on a mentioned user'''
+    try:
+        users = list(bot.get_all_members())
+        for all in users:
+            if all.mentioned_in(ctx.message):
+                user = all
+                break
+        if user == None:
+            await bot.say("mention a user!")
+        msg = "Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nAvatar URL: {4}\nCreated: {5}\nNickname: {6}".format(user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
+        await bot.say(msg)
+        await bot.say(str(user))
+    except:
+            await bot.say("Please mention a user!")
 
 @asyncio.coroutine
 async def on_tick():
@@ -214,8 +279,10 @@ async def on_tick():
     for poll in polls:
         poll["time"] -= 1
         if poll["time"] == 0:
-            await bot.send_message(findChannel(ds['server']['pollChannel']), poll['pos'])
-            await bot.send_message(findChannel(ds['server']['pollChannel']), "poll #{0} is now over!".format(poll['pollNum']))
+            server = poll['server']
+            channel = findChannel(server, "poll")
+            await bot.send_message(channel, poll['pos'])
+            await bot.send_message(channel, "poll #{0} is now over!".format(poll['pollNum']))
             polls.remove(poll)
 
 @bot.event
