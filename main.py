@@ -85,6 +85,7 @@ def timeToTicks(time):
             timeSec += int(tmp) * ds['bot']['ticklength']
     return timeSec // ds['bot']['ticklength']
 
+
 @asyncio.coroutine
 async def timer():
     await bot.wait_until_ready()
