@@ -33,11 +33,21 @@ logger.addHandler(handler)
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 
-def findChannel(name):
+def findServer(idnet):
+    return bot.get_server(ident)
+
+def findChannel(server, channel):
     '''finds the channel'''
-    channels = list(bot.get_all_channels())
-    for all in channels:
-        if all.name == name:
+    for all in ds['servers']:
+        if all['id'] == server:
+            return bot.get_channel(all[channel])
+
+## may not get used but I'm just keeping it
+def findUser(id):
+    users = list(bot.get_all_members())
+    for all in users:
+        name = ''.join(str(all).split('#').pop(0))
+        if name == id:
             return all
     return -1
 
@@ -72,9 +82,10 @@ def timeToTicks(time):
             timeSec += int(tmp)
         else:
             tmp = all.strip('ticks')
-            timeSec += int(tmp) * ds['bot']['ticklength']        
+            timeSec += int(tmp) * ds['bot']['ticklength']
     return timeSec // ds['bot']['ticklength']
-            
+
+
 @asyncio.coroutine
 async def timer():
     await bot.wait_until_ready()
@@ -116,8 +127,8 @@ async def test():
         '''Prints a test message'''
         await bot.say("HELLO WORLD!")
 
-@bot.command()
-async def poll(time, description, *options):
+@bot.command(pass_context=True)
+async def poll(ctx, time, description, *options):
     '''Creates a poll'''
     pollNum = ds['bot']['pollNum']
     ds['bot']['pollNum'] += 1
@@ -126,9 +137,10 @@ async def poll(time, description, *options):
         time = timeToTicks(time)
         desc = description
         pos = {}
+        server = ctx.message.server.id
         for all in options:
             pos[all] = 0
-        polls.append({"time":time, 'pollNum':pollNum, "desc":desc, "pos":pos})
+        polls.append({"time":time, 'pollNum':pollNum, "desc":desc, "pos":pos, "server":server})
         await bot.say("New poll created! #{0}, possibilities: {1}".format(pollNum, pos))
     except:
         await bot.say('Incorrect number format')
@@ -150,7 +162,8 @@ async def vote(number, option):
 
 @bot.command()
 async def timeto(ticks):
-    '''says how much time will pass in <ticks> ticks'''
+    '''says how much time will pass in <ticks> ticks
+    !!obsolite!!'''
     try:
         ticks = int(''.join(ticks))
         seconds = ds['bot']['ticklength'] * ticks
@@ -188,7 +201,7 @@ async def timeup():
     timeUp = round(timeUp % 60, 0)
     msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
     await bot.say(msg)
-        
+
 #the following code does not work, and so we will not keep it
 #@bot.command(pass_context=True)
 #async def tts(ctx):
@@ -239,6 +252,23 @@ async def remind(ctx, delay, *message):
     except ValueError:
         await bot.say("Incorrect format for the delay")
 
+@bot.command(pass_context=True)
+async def who(ctx, user):
+    '''Gives info on a mentioned user'''
+    try:
+        users = list(bot.get_all_members())
+        for all in users:
+            if all.mentioned_in(ctx.message):
+                user = all
+                break
+        if user == None:
+            await bot.say("mention a user!")
+        msg = "Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nAvatar URL: {4}\nCreated: {5}\nNickname: {6}".format(user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
+        await bot.say(msg)
+        await bot.say(str(user))
+    except:
+            await bot.say("Please mention a user!")
+
 @asyncio.coroutine
 async def on_tick():
     for rem in reminders:
@@ -250,8 +280,10 @@ async def on_tick():
     for poll in polls:
         poll["time"] -= 1
         if poll["time"] == 0:
-            await bot.send_message(findChannel(ds['server']['pollChannel']), poll['pos'])
-            await bot.send_message(findChannel(ds['server']['pollChannel']), "poll #{0} is now over!".format(poll['pollNum']))
+            server = poll['server']
+            channel = findChannel(server, "poll")
+            await bot.send_message(channel, poll['pos'])
+            await bot.send_message(channel, "poll #{0} is now over!".format(poll['pollNum']))
             polls.remove(poll)
 
 @bot.event
