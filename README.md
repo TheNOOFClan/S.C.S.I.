@@ -11,4 +11,3 @@
               e
 ***
 *Please see the [Branches](https://github.com/TheNOOFClan/S.C.S.I./wiki/Branches) and [Versioning and merge hierarchy](https://github.com/TheNOOFClan/S.C.S.I./wiki/Versioning-and-merge-hierarchy) wiki pages!*
-

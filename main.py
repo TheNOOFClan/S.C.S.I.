@@ -217,12 +217,11 @@ async def timeup():
 #        await bot.say("TTS is now off!")
 
 @bot.command()
-async def echo(*message):
+async def echo(*, message):
     '''Echos a message'''
-    output = ' '.join(message)
-    print('Echoing: ', output)
-    logger.info('Echoing: {0}'.format(output))
-    await bot.say(output)
+    print('Echoing: ', message)
+    logger.info('Echoing: {0}'.format(message))
+    await bot.say(message)
 
 @bot.command(pass_context=True)
 async def changegame(ctx, *game):
@@ -259,17 +258,66 @@ async def remind(ctx, delay, *message):
 async def backup(ctx, num="1000"):
     '''Backs up <num> messages in the current channel. "all" will back up the entire channel. If num is not provided, defaults to 1000'''
     try:
-        if num.lower() == "all":
-            pass
+        msg = ctx.message
+        # Assuming not Wham!DOS paths, although those may work as well
+        servPath = msg.server.id + ' - ' + msg.server.name + '/'
+        chanPath = msg.channel.id + ' - ' + msg.channel.name + '/'
+        p = Path(servPath)
+        if not p.exists(): p.mkdir()
+        p = Path(servPath + chanPath)
+        if not p.exists(): p.mkdir()
+        newliner = re.compile('\n')
         
+        if num.lower() == "all":
+            await bot.send_message(msg.channel, "Starting backup")
+            count = 1000
+            total = 0
+            start_time = None
+            now_time = None
+            # Probably a better way to do this, but I don't know it
+            async for m in bot.logs_from(msg.channel, limit=1):
+                now_time = m.timestamp
+                
+            while count == 1000:
+                count = 0
+                first = True
+                f = open(servPath + chanPath + 'temp', 'w')
+                
+                async for message in bot.logs_from(msg.channel, limit=1000, before=now_time):
+                    if first:
+                        start_time = message.timestamp
+                        first = False
+                    
+                    m = message.content
+                    m = newliner.sub('\n\t', m)
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
+                    f.write('attachments:\n')
+                    for a in message.attachments:
+                        f.write('\t')
+                        f.write(a['url'])
+                        f.write('\n')
+                    f.write('\n')
+                    
+                    now_time = message.timestamp
+                    count += 1
+                    total += 1
+            
+                f.close()
+                Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(start_time) + ' -- ' + str(now_time) + '.log')
+                await bot.say("Backed up " + str(total) + " messages")
+            
+            await bot.say("Backup finished")
+                
         else:
             num = int(num)
-            f = open(ctx.message.channel.name + '-' + str(time.time()) + '.log', 'w')
+            f = open(servPath + chanPath + 'temp', 'w')
             await bot.say('Starting backup')
-            newliner = re.compile('\n')
             first = True
-            async for message in bot.logs_from(ctx.message.channel, limit=num):
+            start_time = None
+            end_time = None
+            async for message in bot.logs_from(msg.channel, limit=num):
                 if first:
+                    start_time = message.timestamp
                     first = False
                 else:
                     m = message.content
@@ -281,7 +329,11 @@ async def backup(ctx, num="1000"):
                         f.write(a['url'])
                         f.write('\n')
                     f.write('\n')
+                
+                end_time = message.timestamp
+            
             f.close()
+            Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(start_time) + ' -- ' + str(end_time) + '.log')
             await bot.say('Backup finished')
     except ValueError:
         await bot.say('Incorrect number format')
