@@ -7,7 +7,10 @@ import io
 import sys
 import random
 import datetime
+import re
+
 from discord.ext import commands
+from pathlib import Path
 
 description = '''An automod bot for auto modding
 '''
@@ -33,7 +36,7 @@ logger.addHandler(handler)
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 
-def findServer(idnet):
+def findServer(ident):
     return bot.get_server(ident)
 
 def findChannel(server, channel):
@@ -214,12 +217,11 @@ async def timeup():
 #        await bot.say("TTS is now off!")
 
 @bot.command()
-async def echo(*message):
+async def echo(*, message):
     '''Echos a message'''
-    output = ' '.join(message)
-    print('Echoing: ', output)
-    logger.info('Echoing: {0}'.format(output))
-    await bot.say(output)
+    print('Echoing: ', message)
+    logger.info('Echoing: {0}'.format(message))
+    await bot.say(message)
 
 @bot.command(pass_context=True)
 async def changegame(ctx, *game):
@@ -251,6 +253,91 @@ async def remind(ctx, delay, *message):
         await bot.say("Reminder set")
     except ValueError:
         await bot.say("Incorrect format for the delay")
+
+@bot.command(pass_context=True)
+async def backup(ctx, num="1000"):
+    '''Backs up <num> messages in the current channel. "all" will back up the entire channel. If num is not provided, defaults to 1000'''
+    try:
+        msg = ctx.message
+        # Assuming not Wham!DOS paths, although those may work as well
+        servPath = msg.server.id + ' - ' + msg.server.name + '/'
+        chanPath = msg.channel.id + ' - ' + msg.channel.name + '/'
+        p = Path(servPath)
+        if not p.exists(): p.mkdir()
+        p = Path(servPath + chanPath)
+        if not p.exists(): p.mkdir()
+        newliner = re.compile('\n')
+        end = last_backup_time(servPath + chanPath)
+        
+        if num.lower() == "all":
+            await bot.send_message(msg.channel, "Starting backup")
+            count = 1000
+            total = 0
+            start_time = None
+            now_time = None
+            # Probably a better way to do this, but I don't know it
+            async for m in bot.logs_from(msg.channel, limit=1):
+                now_time = m.timestamp
+                
+            while count == 1000:
+                count = 0
+                first = True
+                f = open(servPath + chanPath + 'temp', 'w')
+                
+                async for message in bot.logs_from(msg.channel, limit=1000, before=now_time, after=end):
+                    if first:
+                        start_time = message.timestamp
+                        first = False
+                    
+                    m = message.clean_content
+                    m = newliner.sub('\n\t', m)
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
+                    f.write('attachments:\n')
+                    for a in message.attachments:
+                        f.write('\t')
+                        f.write(a['url'])
+                        f.write('\n')
+                    f.write('\n')
+                    
+                    now_time = message.timestamp
+                    count += 1
+                    total += 1
+            
+                f.close()
+                Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(now_time) + ' -- ' + str(start_time) + '.log')
+                await bot.say("Backed up " + str(total) + " messages")
+            
+            await bot.say("Backup finished")
+                
+        else:
+            num = int(num)
+            f = open(servPath + chanPath + 'temp', 'w')
+            await bot.say('Starting backup')
+            first = True
+            start_time = None
+            end_time = None
+            async for message in bot.logs_from(msg.channel, limit=num + 1, after=end):
+                if first:
+                    start_time = message.timestamp
+                    first = False
+                else:
+                    m = message.clean_content
+                    m = newliner.sub('\n\t', m)
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
+                    f.write('attachments:\n')
+                    for a in message.attachments:
+                        f.write('\t')
+                        f.write(a['url'])
+                        f.write('\n')
+                    f.write('\n')
+                
+                end_time = message.timestamp
+            
+            f.close()
+            Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(end_time) + ' -- ' + str(start_time) + '.log')
+            await bot.say('Backup finished')
+    except ValueError:
+        await bot.say('Incorrect number format')
 
 @bot.command(pass_context=True)
 async def who(ctx, user):
@@ -285,6 +372,25 @@ async def on_tick():
             await bot.send_message(channel, poll['pos'])
             await bot.send_message(channel, "poll #{0} is now over!".format(poll['pollNum']))
             polls.remove(poll)
+
+def last_backup_time(backup_dir):
+    p = Path(backup_dir)
+    last_file = None
+    for f in p.iterdir():
+        last_file = f
+    
+    if last_file is None: return None
+    file_name = str(last_file)
+    split_name = file_name.split('-- ')
+    date_str = split_name[1]
+    return string_to_datetime(date_str)
+
+def string_to_datetime(s):
+    date_and_time = s.split()
+    date = date_and_time[0].split('-')
+    time = date_and_time[1].split(':')
+    seconds_and_micro = time[2].split('.')
+    return datetime.datetime(year=int(date[0]), month=int(date[1]), day=int(date[2]), hour=int(time[0]), minute=int(time[1]), second=int(seconds_and_micro[0]), microsecond=int(seconds_and_micro[1]))
 
 @bot.event
 async def on_ready():
