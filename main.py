@@ -288,7 +288,7 @@ async def backup(ctx, num="1000"):
                         start_time = message.timestamp
                         first = False
                     
-                    m = message.content
+                    m = message.clean_content
                     m = newliner.sub('\n\t', m)
                     f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
                     f.write('attachments:\n')
@@ -315,12 +315,12 @@ async def backup(ctx, num="1000"):
             first = True
             start_time = None
             end_time = None
-            async for message in bot.logs_from(msg.channel, limit=num):
+            async for message in bot.logs_from(msg.channel, limit=num + 1):
                 if first:
                     start_time = message.timestamp
                     first = False
                 else:
-                    m = message.content
+                    m = message.clean_content
                     m = newliner.sub('\n\t', m)
                     f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
                     f.write('attachments:\n')
