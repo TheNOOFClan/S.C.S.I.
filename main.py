@@ -7,7 +7,10 @@ import io
 import sys
 import random
 import datetime
+import re
+
 from discord.ext import commands
+from pathlib import Path
 
 description = '''An automod bot for auto modding
 '''
@@ -253,16 +256,32 @@ async def remind(ctx, delay, *message):
         await bot.say("Incorrect format for the delay")
 
 @bot.command(pass_context=True)
-async def backup(ctx, num=1000):
-    '''Backs up <num> messages in the current channel. if num is not provided, defaults to 1000'''
+async def backup(ctx, num="1000"):
+    '''Backs up <num> messages in the current channel. "all" will back up the entire channel. If num is not provided, defaults to 1000'''
     try:
-        num = int(num)
-        f = open(ctx.message.channel.name + '-' + str(time.time()) + '.log', 'w')
-        await bot.say('Starting backup')
-        async for message in bot.logs_from(ctx.message.channel, limit=num):
-            f.write(str(message.timestamp) + ': ' + message.author.name + '(' + str(message.author.nick) + '):' + message.content + '\n')
-        f.close()
-        await bot.say('Backup finished')
+        if num.lower() == "all":
+            pass
+        
+        else:
+            num = int(num)
+            f = open(ctx.message.channel.name + '-' + str(time.time()) + '.log', 'w')
+            await bot.say('Starting backup')
+            newliner = re.compile('\n')
+            first = True
+            async for message in bot.logs_from(ctx.message.channel, limit=num):
+                if first:
+                    first = False
+                else:
+                    m = message.content
+                    m = newliner.sub('\n\t', m)
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + message.content + '\n')
+                    f.write('attachments:\n')
+                    for a in message.attachments:
+                        f.write(a['url'])
+                        f.write('\n')
+                    f.write('\n')
+            f.close()
+            await bot.say('Backup finished')
     except ValueError:
         await bot.say('Incorrect number format')
 
