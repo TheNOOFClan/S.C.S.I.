@@ -267,6 +267,7 @@ async def backup(ctx, num="1000"):
         p = Path(servPath + chanPath)
         if not p.exists(): p.mkdir()
         newliner = re.compile('\n')
+        end = last_backup_time(servPath + chanPath)
         
         if num.lower() == "all":
             await bot.send_message(msg.channel, "Starting backup")
@@ -283,7 +284,7 @@ async def backup(ctx, num="1000"):
                 first = True
                 f = open(servPath + chanPath + 'temp', 'w')
                 
-                async for message in bot.logs_from(msg.channel, limit=1000, before=now_time):
+                async for message in bot.logs_from(msg.channel, limit=1000, before=now_time, after=end):
                     if first:
                         start_time = message.timestamp
                         first = False
@@ -303,7 +304,7 @@ async def backup(ctx, num="1000"):
                     total += 1
             
                 f.close()
-                Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(start_time) + ' -- ' + str(now_time) + '.log')
+                Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(now_time) + ' -- ' + str(start_time) + '.log')
                 await bot.say("Backed up " + str(total) + " messages")
             
             await bot.say("Backup finished")
@@ -315,7 +316,7 @@ async def backup(ctx, num="1000"):
             first = True
             start_time = None
             end_time = None
-            async for message in bot.logs_from(msg.channel, limit=num + 1):
+            async for message in bot.logs_from(msg.channel, limit=num + 1, after=end):
                 if first:
                     start_time = message.timestamp
                     first = False
@@ -333,7 +334,7 @@ async def backup(ctx, num="1000"):
                 end_time = message.timestamp
             
             f.close()
-            Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(start_time) + ' -- ' + str(end_time) + '.log')
+            Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(end_time) + ' -- ' + str(start_time) + '.log')
             await bot.say('Backup finished')
     except ValueError:
         await bot.say('Incorrect number format')
@@ -371,6 +372,25 @@ async def on_tick():
             await bot.send_message(channel, poll['pos'])
             await bot.send_message(channel, "poll #{0} is now over!".format(poll['pollNum']))
             polls.remove(poll)
+
+def last_backup_time(backup_dir):
+    p = Path(backup_dir)
+    last_file = None
+    for f in p.iterdir():
+        last_file = f
+    
+    if last_file is None: return None
+    file_name = str(last_file)
+    split_name = file_name.split('-- ')
+    date_str = split_name[1]
+    return string_to_datetime(date_str)
+
+def string_to_datetime(s):
+    date_and_time = s.split()
+    date = date_and_time[0].split('-')
+    time = date_and_time[1].split(':')
+    seconds_and_micro = time[2].split('.')
+    return datetime.datetime(year=int(date[0]), month=int(date[1]), day=int(date[2]), hour=int(time[0]), minute=int(time[1]), second=int(seconds_and_micro[0]), microsecond=int(seconds_and_micro[1]))
 
 @bot.event
 async def on_ready():
