@@ -274,9 +274,10 @@ async def backup(ctx, num="1000"):
                 else:
                     m = message.content
                     m = newliner.sub('\n\t', m)
-                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + message.content + '\n')
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
                     f.write('attachments:\n')
                     for a in message.attachments:
+                        f.write('\t')
                         f.write(a['url'])
                         f.write('\n')
                     f.write('\n')
