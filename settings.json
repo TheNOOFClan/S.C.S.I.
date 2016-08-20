@@ -1,7 +1,7 @@
 {
 	"bot":{
 		"token":"<INSERT BOT TOKEN HERE>",
-		"version":"v0.3",
+		"version":"v0.3.1o",
 		"tts":false,
 		"prefix":"!",
 		"game":"with entity.human.programmer",

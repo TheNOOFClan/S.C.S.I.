@@ -33,7 +33,7 @@ logger.addHandler(handler)
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 
-def findServer(idnet):
+def findServer(ident):
     return bot.get_server(ident)
 
 def findChannel(server, channel):
