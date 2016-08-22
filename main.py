@@ -98,23 +98,27 @@ async def timer():
 
 @bot.event
 async def on_channel_delete(channel):
+    server = channel.server.id
     msg = "Channel {0} has been deleted!".format(channel.mention)
-    await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_channel_create(channel):
+    server = channel.server.id
     msg = "Channel {0} has been created!".format(channel.mention)
-    await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_member_join(member):
+    server = member.server.id
     msg = "New member {0} has joined the server!".format(member.mention)
-    await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_member_remove(member):
+    server = member.server.id
     msg = "Member {0} has left the server!".format(member.name)
-    await bot.send_message(findChannel(ds['server']['announcements']), msg, tts=ds['bot']['tts'])
+    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_command(command, ctx):
