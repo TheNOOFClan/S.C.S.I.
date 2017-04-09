@@ -254,7 +254,7 @@ async def changegame(ctx, *game):
     author = ctx.message.author
     if checkRole(author, ds['bot']['botmin']):
         gameName = ' '.join(game)
-        await bot.change_status(game=discord.Game(name=gameName))
+        await bot.change_presence(game=discord.Game(name=gameName))
         await bot.say("Changing game to: \"{0}\"!".format(gameName))
     else:
         await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
@@ -431,7 +431,7 @@ async def on_ready():
     logger.info('Game set to:')
     logger.info(ds['bot']['game'])
     logger.info('------')
-    await bot.change_status(game=discord.Game(name=ds['bot']['game']))
+    await bot.change_presence(game=discord.Game(name=ds['bot']['game']))
 
 startTime = time.time()
 timerTask = loop.create_task(timer())
