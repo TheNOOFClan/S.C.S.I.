@@ -18,7 +18,12 @@ description = '''An automod bot for auto modding
 reminders = []
 polls = []
 
-settings = open('settings.json', 'r')
+TESTING = True
+if TESTING:
+    settings = open('testing.json', 'r')
+else:
+    settings = open('settings.json', 'r')
+
 ds = json.load(settings)
 
 prefix = ds['bot']['prefix']
@@ -100,25 +105,41 @@ async def timer():
 async def on_channel_delete(channel):
     server = channel.server.id
     msg = "Channel {0} has been deleted!".format(channel.mention)
-    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    try:
+        await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    except discord.Forbidden:
+        msg = "Missing Permissions for announcements!"
+        await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_channel_create(channel):
     server = channel.server.id
     msg = "Channel {0} has been created!".format(channel.mention)
-    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    try:
+        await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    except discord.Forbidden:
+        msg = "Missing Permissions for announcements!"
+        await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_member_join(member):
     server = member.server.id
     msg = "New member {0} has joined the server!".format(member.mention)
-    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    try:
+        await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    except discord.Forbidden:
+        msg = "Missing Permissions for announcements!"
+        await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_member_remove(member):
     server = member.server.id
     msg = "Member {0} has left the server!".format(member.name)
-    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    try:
+        await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    except discord.Forbidden:
+        msg = "Missing Permissions for announcements!"
+        await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_command(command, ctx):
@@ -354,9 +375,9 @@ async def who(ctx, user):
                 break
         if user == None:
             await bot.say("mention a user!")
-        msg = "Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nAvatar URL: {4}\nCreated: {5}\nNickname: {6}".format(user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
-        await bot.say(msg)
+        msg = "```Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nCreated: {5}\nNickname: {6}```Avatar URL: {4}\n".format(user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
         await bot.say(str(user))
+        await bot.say(msg)
     except:
             await bot.say("Please mention a user!")
 

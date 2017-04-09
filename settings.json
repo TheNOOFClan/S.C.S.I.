@@ -21,7 +21,8 @@
 			"id":"SERVER ID",
 			"announcements":"CHANNEL ID",
 			"poll":"",
-			"adminLog":""
+			"adminLog":"",
+			"botspam":""
 		}
 	]
 	
