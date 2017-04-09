@@ -279,6 +279,14 @@ async def remind(ctx, delay, *message):
     except ValueError:
         await bot.say("Incorrect format for the delay")
 
+@bot.command()
+async def about():
+    try:
+        msg = "```Version: {0}\nPrefix: {1}\n\"Game\": {2}\nContributors: {3}```".format(ds['bot']['version'], ds['bot']['prefix'], ds['bot']['game'], str(ds['contrib']).strip("[]"))
+        await bot.say(msg)
+    except:
+        pass
+
 @bot.command(pass_context=True)
 async def backup(ctx, num="1000"):
     '''Backs up <num> messages in the current channel. "all" will back up the entire channel. If num is not provided, defaults to 1000'''

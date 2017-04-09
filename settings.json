@@ -24,6 +24,10 @@
 			"adminLog":"",
 			"botspam":""
 		}
-	]
+	],
+  "contrib":[
+    "jellopudding",
+    "onionsans."
+  ]
 	
 }
