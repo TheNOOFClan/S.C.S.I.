@@ -324,7 +324,7 @@ async def backup(ctx, num="1000"):
                     
                     m = message.clean_content
                     m = newliner.sub('\n\t', m)
-                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.display_name) + '):\n\t' + m + '\n')
                     f.write('attachments:\n')
                     for a in message.attachments:
                         f.write('\t')
@@ -371,6 +371,8 @@ async def backup(ctx, num="1000"):
             await bot.say('Backup finished')
     except ValueError:
         await bot.say('Incorrect number format')
+    except e:
+        await bot.send_message()
 
 @bot.command(pass_context=True)
 async def who(ctx, user):
