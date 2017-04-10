@@ -9,11 +9,15 @@ import random
 import datetime
 import re
 
+import markov
+
 from discord.ext import commands
 from pathlib import Path
 
 description = '''An automod bot for auto modding
 '''
+
+mark = markov.Markov
 
 reminders = []
 polls = []
@@ -149,6 +153,34 @@ async def on_command(command, ctx):
         destination = "Private Message"
     else:
         destination = "#{0.channel.name} ({0.server.name})".format(message)
+
+@bot.group(pass_context = True)
+async def markov(ctx):
+	'''the markov command group'''
+	if ctx.invoked_subcommand == None:
+		await bot.say("Must be used with a sub command!")
+
+@markov.command()
+async def read(*text):
+    '''has the makrkov chain read text'''
+    try:
+        mark.readText(" ".join(text))
+        await bot.say("Read text!")
+    except TypeError as e:
+        print(e)
+
+
+@markov.command()
+async def save():
+	mark.save(mark)
+	await bot.say("Saved current vocab!")
+
+@markov.command()
+async def write(n: str = '100'):
+	n = int(n)
+	await bot.say("Markov incoming!")
+	msg = "```" + mark.writeText(n) + "```"
+	await bot.say(msg)
 
 @bot.command()
 async def test():
@@ -389,7 +421,7 @@ async def who(ctx, user):
         await bot.say(str(user))
         await bot.say(msg)
     except:
-            await bot.say("Please mention a user!")
+        await bot.say("Please mention a user!")
 
 @asyncio.coroutine
 async def on_tick():
@@ -447,3 +479,4 @@ startTime = time.time()
 timerTask = loop.create_task(timer())
 bot.run(ds['bot']["token"])
 settings.close()
+mark.stop()
