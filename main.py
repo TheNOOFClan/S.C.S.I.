@@ -169,10 +169,15 @@ async def read(*text):
     except TypeError as e:
         print(e)
 
+@markov.command(pass_contect=True)
+async def readChan(ctx, n = "100"):
+    '''do the same thing as backup but have the markov chain read the channel'''
+    pass
+
 
 @markov.command()
 async def save():
-	mark.save(mark)
+	mark.save()
 	await bot.say("Saved current vocab!")
 
 @markov.command()

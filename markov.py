@@ -3,10 +3,16 @@ import io
 import json
 
 class Markov:
-	# words = []
-	# vocab = {}
-	# wordsFile = open("words.json", "+w")
-	# vocabFile = open("vocab.json", "+w")
+	try:
+		wordsFile = open("words.json", "+r")
+		vocabFile = open("vocab.json", "+r")
+		words = json.load(wordsFile)
+		vocab = json.load(vocabFile)
+	except:
+		wordsFile = open("words.json", "+w")
+		vocabFile = open("vocab.json", "+w")
+		words = []
+		vocab = {}
 	# def __init__(self):
 	# 	self.words = json.load(Markov.wordsFile)
 	# 	self.vocab = json.load(Markov.vocabFile)
@@ -47,8 +53,6 @@ class Markov:
 	# 	self.vocabFile.close()
 	# 	self.wordsFile.close()
 	# 	print("Stopping Markov!")
-	vocab = {}
-	words = []
 
 	def readText(txt):
 		txt = txt.split()
@@ -58,6 +62,12 @@ class Markov:
 			except:
 				Markov.vocab[txt[i]] = [txt[i + 1]]
 			Markov.words.append(txt[i])
+
+	def save():
+		Markov.wordsFile.flush()
+		Markov.vocabFile.flush()
+		json.dump(Markov.words, Markov.wordsFile)
+		json.dump(Markov.vocab, Markov.vocabFile)
 
 
 	def writeText(n = 100):
@@ -72,6 +82,11 @@ class Markov:
 			return " ".join(text)
 		finally:
 			return " ".join(text)
+
+	def stop():
+		Markov.save()
+		Markov.vocabFile.close()
+		Markov.wordsFile.close()
 
 if __name__ == "__main__":
 	text = """test"""
