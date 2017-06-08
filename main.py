@@ -172,7 +172,7 @@ async def read(*text):
 @markov.command(pass_contect=True)
 async def readChan(ctx, n = "100"):
     '''do the same thing as backup but have the markov chain read the channel'''
-    pass
+    await bot.say("This feature has not been implemented yet!")
 
 
 @markov.command()
