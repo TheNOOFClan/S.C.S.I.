@@ -61,3 +61,13 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# Keep git from pushing `settings.json`s with keys/tokens while keeping
+# default settings.json format
+testing.json
+
+# Keep pycharm files out of repo
+.idea/S.C.S.I..iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml

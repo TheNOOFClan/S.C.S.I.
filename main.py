@@ -9,16 +9,25 @@ import random
 import datetime
 import re
 
+import markov
+
 from discord.ext import commands
 from pathlib import Path
 
 description = '''An automod bot for auto modding
 '''
 
+mark = markov.Markov
+
 reminders = []
 polls = []
 
-settings = open('settings.json', 'r')
+TESTING = True
+if TESTING:
+    settings = open('testing.json', 'r')
+else:
+    settings = open('settings.json', 'r')
+
 ds = json.load(settings)
 
 prefix = ds['bot']['prefix']
@@ -100,25 +109,41 @@ async def timer():
 async def on_channel_delete(channel):
     server = channel.server.id
     msg = "Channel {0} has been deleted!".format(channel.mention)
-    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    try:
+        await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    except discord.Forbidden:
+        msg = "Missing Permissions for announcements!"
+        await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_channel_create(channel):
     server = channel.server.id
     msg = "Channel {0} has been created!".format(channel.mention)
-    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    try:
+        await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    except discord.Forbidden:
+        msg = "Missing Permissions for announcements!"
+        await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_member_join(member):
     server = member.server.id
     msg = "New member {0} has joined the server!".format(member.mention)
-    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    try:
+        await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    except discord.Forbidden:
+        msg = "Missing Permissions for announcements!"
+        await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_member_remove(member):
     server = member.server.id
     msg = "Member {0} has left the server!".format(member.name)
-    await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    try:
+        await bot.send_message(findChannel(server, 'announcements'), msg, tts=ds['bot']['tts'])
+    except discord.Forbidden:
+        msg = "Missing Permissions for announcements!"
+        await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
 @bot.event
 async def on_command(command, ctx):
@@ -128,6 +153,39 @@ async def on_command(command, ctx):
         destination = "Private Message"
     else:
         destination = "#{0.channel.name} ({0.server.name})".format(message)
+
+@bot.group(pass_context = True)
+async def markov(ctx):
+	'''the markov command group'''
+	if ctx.invoked_subcommand == None:
+		await bot.say("Must be used with a sub command!")
+
+@markov.command()
+async def read(*text):
+    '''has the makrkov chain read text'''
+    try:
+        mark.readText(" ".join(text))
+        await bot.say("Read text!")
+    except TypeError as e:
+        print(e)
+
+@markov.command(pass_contect=True)
+async def readChan(ctx, n = "100"):
+    '''do the same thing as backup but have the markov chain read the channel'''
+    await bot.say("This feature has not been implemented yet!")
+
+
+@markov.command()
+async def save():
+	mark.save()
+	await bot.say("Saved current vocab!")
+
+@markov.command()
+async def write(n: str = '100'):
+	n = int(n)
+	await bot.say("Markov incoming!")
+	msg = "```" + mark.writeText(n) + "```"
+	await bot.say(msg)
 
 @bot.command()
 async def test():
@@ -233,7 +291,7 @@ async def changegame(ctx, *game):
     author = ctx.message.author
     if checkRole(author, ds['bot']['botmin']):
         gameName = ' '.join(game)
-        await bot.change_status(game=discord.Game(name=gameName))
+        await bot.change_presence(game=discord.Game(name=gameName))
         await bot.say("Changing game to: \"{0}\"!".format(gameName))
     else:
         await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
@@ -257,6 +315,14 @@ async def remind(ctx, delay, *message):
         await bot.say("Reminder set")
     except ValueError:
         await bot.say("Incorrect format for the delay")
+
+@bot.command()
+async def about():
+    try:
+        msg = "```Version: {0}\nPrefix: {1}\n\"Game\": {2}\nContributors: {3}```".format(ds['bot']['version'], ds['bot']['prefix'], ds['bot']['game'], str(ds['contrib']).strip("[]"))
+        await bot.say(msg)
+    except:
+        pass
 
 @bot.command(pass_context=True)
 async def backup(ctx, num="1000"):
@@ -295,7 +361,7 @@ async def backup(ctx, num="1000"):
                     
                     m = message.clean_content
                     m = newliner.sub('\n\t', m)
-                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.display_name) + '):\n\t' + m + '\n')
                     f.write('attachments:\n')
                     for a in message.attachments:
                         f.write('\t')
@@ -342,6 +408,8 @@ async def backup(ctx, num="1000"):
             await bot.say('Backup finished')
     except ValueError:
         await bot.say('Incorrect number format')
+    except e:
+        await bot.send_message()
 
 @bot.command(pass_context=True)
 async def who(ctx, user):
@@ -354,11 +422,11 @@ async def who(ctx, user):
                 break
         if user == None:
             await bot.say("mention a user!")
-        msg = "Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nAvatar URL: {4}\nCreated: {5}\nNickname: {6}".format(user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
-        await bot.say(msg)
+        msg = "```Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nCreated: {5}\nNickname: {6}```Avatar URL: {4}\n".format(user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
         await bot.say(str(user))
+        await bot.say(msg)
     except:
-            await bot.say("Please mention a user!")
+        await bot.say("Please mention a user!")
 
 @asyncio.coroutine
 async def on_tick():
@@ -410,9 +478,10 @@ async def on_ready():
     logger.info('Game set to:')
     logger.info(ds['bot']['game'])
     logger.info('------')
-    await bot.change_status(game=discord.Game(name=ds['bot']['game']))
+    await bot.change_presence(game=discord.Game(name=ds['bot']['game']))
 
 startTime = time.time()
 timerTask = loop.create_task(timer())
 bot.run(ds['bot']["token"])
 settings.close()
+mark.stop()

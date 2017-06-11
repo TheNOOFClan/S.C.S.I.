@@ -21,8 +21,13 @@
 			"id":"SERVER ID",
 			"announcements":"CHANNEL ID",
 			"poll":"",
-			"adminLog":""
+			"adminLog":"",
+			"botspam":""
 		}
-	]
+	],
+  "contrib":[
+    "jellopudding",
+    "onionsans."
+  ]
 	
 }
