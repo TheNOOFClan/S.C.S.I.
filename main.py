@@ -150,13 +150,19 @@ async def on_command(command, ctx):
     else:
         destination = "#{0.channel.name} ({0.server.name})".format(message)
 
+@bot.group(pass_context=True)
+async def poll(ctx):
+    '''The poll command group'''
+    if ctx.invoked_subcommand == None:
+        await bot.say("Must be used with a subcommand!")
+
 @bot.command()
 async def test():
         '''Prints a test message'''
         await bot.say("HELLO WORLD!")
 
-@bot.command(pass_context=True)
-async def poll(ctx, time, description, *options):
+@poll.command(pass_context=True)
+async def create(ctx, time, description, *options):
     '''Creates a poll'''
     pollNum = ds['bot']['pollNum']
     ds['bot']['pollNum'] += 1
@@ -173,7 +179,7 @@ async def poll(ctx, time, description, *options):
     except:
         await bot.say('Incorrect number format')
 
-@bot.command()
+@poll.command()
 async def vote(number, option):
     '''Votes on a poll'''
     try:
