@@ -9,15 +9,11 @@ import random
 import datetime
 import re
 
-import markov
-
 from discord.ext import commands
 from pathlib import Path
 
 description = '''An automod bot for auto modding
 '''
-
-mark = markov.Markov
 
 reminders = []
 polls = []
@@ -154,39 +150,6 @@ async def on_command(command, ctx):
     else:
         destination = "#{0.channel.name} ({0.server.name})".format(message)
 
-@bot.group(pass_context = True)
-async def markov(ctx):
-	'''the markov command group'''
-	if ctx.invoked_subcommand == None:
-		await bot.say("Must be used with a sub command!")
-
-@markov.command()
-async def read(*text):
-    '''has the makrkov chain read text'''
-    try:
-        mark.readText(" ".join(text))
-        await bot.say("Read text!")
-    except TypeError as e:
-        print(e)
-
-@markov.command(pass_contect=True)
-async def readChan(ctx, n = "100"):
-    '''do the same thing as backup but have the markov chain read the channel'''
-    await bot.say("This feature has not been implemented yet!")
-
-
-@markov.command()
-async def save():
-	mark.save()
-	await bot.say("Saved current vocab!")
-
-@markov.command()
-async def write(n: str = '100'):
-	n = int(n)
-	await bot.say("Markov incoming!")
-	msg = "```" + mark.writeText(n) + "```"
-	await bot.say(msg)
-
 @bot.command()
 async def test():
         '''Prints a test message'''
@@ -242,19 +205,19 @@ async def timeto(ticks):
     except ValueError:
         await bot.say("Invalid arguments")
 
-@bot.command(pass_context=True)
-async def shutdown(ctx):
-    '''Shuts down the bot'''
-    author = ctx.message.author
-    if checkRole(author, ds['bot']['botmin']):
-        msg = "Shutting down now!"
-        await bot.say(msg)
-        timerTask.cancel()
-        bot.logout()
-        settings.close()
-        sys.exit()
-    else:
-        await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
+# @bot.command(pass_context=True)
+# async def shutdown(ctx):
+#     '''Shuts down the bot'''
+#     author = ctx.message.author
+#     if checkRole(author, ds['bot']['botmin']):
+#         msg = "Shutting down now!"
+#         await bot.say(msg)
+#         timerTask.cancel()
+#         bot.logout()
+#         settings.close()
+#         bot.close()
+#     else:
+#         await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
 
 @bot.command()
 async def timeup():
@@ -482,6 +445,9 @@ async def on_ready():
 
 startTime = time.time()
 timerTask = loop.create_task(timer())
-bot.run(ds['bot']["token"])
+try:
+    bot.run(ds['bot']["token"])
+except SystemExit:
+    print('Shutting down!')
 settings.close()
-mark.stop()
+sys.exit()
