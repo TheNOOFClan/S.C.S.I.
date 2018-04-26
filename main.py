@@ -41,14 +41,17 @@ logger.addHandler(handler)
 logger.info("Starting SCSI {0} using discord.py {1}".format(ds['bot']["version"], discord.__version__))
 print("Starting SCSI {0} using discord.py {1}".format(ds['bot']['version'], discord.__version__))
 
+
 def findServer(ident):
     return bot.get_server(ident)
+
 
 def findChannel(server, channel):
     '''finds the channel'''
     for all in ds['servers']:
         if all['id'] == server:
             return bot.get_channel(all[channel])
+
 
 ## may not get used but I'm just keeping it
 def findUser(id):
@@ -59,6 +62,7 @@ def findUser(id):
             return all
     return -1
 
+
 def checkRole(user, roleRec):
     '''Checks if the user has the recuired role'''
     ok = False
@@ -66,6 +70,7 @@ def checkRole(user, roleRec):
         if all.name == roleRec:
             ok = True
     return ok
+
 
 def timeToTicks(time):
     '''converts time into seconds than to ticks'''
@@ -101,6 +106,7 @@ async def timer():
         loop.create_task(on_tick())
         await asyncio.sleep(ds['bot']['ticklength'])
 
+
 @bot.event
 async def on_channel_delete(channel):
     server = channel.server.id
@@ -110,6 +116,7 @@ async def on_channel_delete(channel):
     except discord.Forbidden:
         msg = "Missing Permissions for announcements!"
         await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
+
 
 @bot.event
 async def on_channel_create(channel):
@@ -121,6 +128,7 @@ async def on_channel_create(channel):
         msg = "Missing Permissions for announcements!"
         await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
+
 @bot.event
 async def on_member_join(member):
     server = member.server.id
@@ -130,6 +138,7 @@ async def on_member_join(member):
     except discord.Forbidden:
         msg = "Missing Permissions for announcements!"
         await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
+
 
 @bot.event
 async def on_member_remove(member):
@@ -141,6 +150,7 @@ async def on_member_remove(member):
         msg = "Missing Permissions for announcements!"
         await bot.send_message(findChannel(server, 'botspam'), msg, tts=ds['bot']['tts'])
 
+
 @bot.event
 async def on_command(command, ctx):
     message = ctx.message
@@ -150,16 +160,19 @@ async def on_command(command, ctx):
     else:
         destination = "#{0.channel.name} ({0.server.name})".format(message)
 
+
 @bot.group(pass_context=True)
 async def poll(ctx):
     '''The poll command group'''
     if ctx.invoked_subcommand == None:
         await bot.say("Must be used with a subcommand!")
 
+
 @bot.command()
 async def test():
-        '''Prints a test message'''
-        await bot.say("HELLO WORLD!")
+    '''Prints a test message'''
+    await bot.say("HELLO WORLD!")
+
 
 @poll.command(pass_context=True)
 async def create(ctx, time, description, *options):
@@ -167,17 +180,18 @@ async def create(ctx, time, description, *options):
     pollNum = ds['bot']['pollNum']
     ds['bot']['pollNum'] += 1
     try:
-##        time = int(time)
+        ##        time = int(time)
         time = timeToTicks(time)
         desc = description
         pos = {}
         server = ctx.message.server.id
         for all in options:
             pos[all] = 0
-        polls.append({"time":time, 'pollNum':pollNum, "desc":desc, "pos":pos, "server":server})
+        polls.append({"time": time, 'pollNum': pollNum, "desc": desc, "pos": pos, "server": server})
         await bot.say("New poll created! #{0}, possibilities: {1}".format(pollNum, pos))
     except:
         await bot.say('Incorrect number format')
+
 
 @poll.command()
 async def vote(number, option):
@@ -189,10 +203,11 @@ async def vote(number, option):
             if all['pollNum'] == pollNum:
                 if pos in all['pos'].keys():
                     all['pos'][pos] += 1
-                    break # Why waste valuable processing cycles?
+                    break  # Why waste valuable processing cycles?
                 await bot.say('Invalid option for that poll')
     except ValueError:
         await bot.say('Incorrect number format')
+
 
 @bot.command()
 async def timeto(ticks):
@@ -210,6 +225,7 @@ async def timeto(ticks):
         await bot.say(msg)
     except ValueError:
         await bot.say("Invalid arguments")
+
 
 # @bot.command(pass_context=True)
 # async def shutdown(ctx):
@@ -236,9 +252,10 @@ async def timeup():
     msg = "Time up is: *{0} Hours, {1} Minutes and, {2} Seconds*".format(hoursUp, minutesUp, timeUp)
     await bot.say(msg)
 
-#the following code does not work, and so we will not keep it
-#@bot.command(pass_context=True)
-#async def tts(ctx):
+
+# the following code does not work, and so we will not keep it
+# @bot.command(pass_context=True)
+# async def tts(ctx):
 #    '''Turns TTS on or off'''
 #    if ctx.message.content[len(prefix) + 4:] == "on":
 #        ds['bot']['tts'] = True
@@ -254,6 +271,7 @@ async def echo(*, message):
     logger.info('Echoing: {0}'.format(message))
     await bot.say(message)
 
+
 @bot.command(pass_context=True)
 async def changegame(ctx, *game):
     '''Changes the game being displayed'''
@@ -265,18 +283,19 @@ async def changegame(ctx, *game):
     else:
         await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
 
+
 @bot.command(pass_context=True)
 async def remind(ctx, delay, *message):
     '''Sets a reminder for several seconds in the future'''
     msg = ' '.join(message)
     chan = ctx.message.channel
     try:
-## following code kept for posterity
-##        delay = int(float(delay) / ds['bot']['ticklength'])
-##        if delay == 0:
-##            delay = 1
-##        reminders.append([delay, chan, msg])
-##        await bot.say("Reminder set")
+        ## following code kept for posterity
+        ##        delay = int(float(delay) / ds['bot']['ticklength'])
+        ##        if delay == 0:
+        ##            delay = 1
+        ##        reminders.append([delay, chan, msg])
+        ##        await bot.say("Reminder set")
         delay = timeToTicks(delay)
         if delay == 0:
             delay = 1
@@ -285,13 +304,18 @@ async def remind(ctx, delay, *message):
     except ValueError:
         await bot.say("Incorrect format for the delay")
 
+
 @bot.command()
 async def about():
     try:
-        msg = "```Version: {0}\nPrefix: {1}\n\"Game\": {2}\nContributors: {3}```".format(ds['bot']['version'], ds['bot']['prefix'], ds['bot']['game'], str(ds['contrib']).strip("[]"))
+        msg = "```Version: {0}\nPrefix: {1}\n\"Game\": {2}\nContributors: {3}```".format(ds['bot']['version'],
+                                                                                         ds['bot']['prefix'],
+                                                                                         ds['bot']['game'],
+                                                                                         str(ds['contrib']).strip("[]"))
         await bot.say(msg)
     except:
         pass
+
 
 @bot.command(pass_context=True)
 async def backup(ctx, num="1000"):
@@ -307,7 +331,7 @@ async def backup(ctx, num="1000"):
         if not p.exists(): p.mkdir()
         newliner = re.compile('\n')
         end = last_backup_time(servPath + chanPath)
-        
+
         if num.lower() == "all":
             await bot.send_message(msg.channel, "Starting backup")
             count = 1000
@@ -317,37 +341,39 @@ async def backup(ctx, num="1000"):
             # Probably a better way to do this, but I don't know it
             async for m in bot.logs_from(msg.channel, limit=1):
                 now_time = m.timestamp
-                
+
             while count == 1000:
                 count = 0
                 first = True
                 f = open(servPath + chanPath + 'temp', 'w')
-                
+
                 async for message in bot.logs_from(msg.channel, limit=1000, before=now_time, after=end):
                     if first:
                         start_time = message.timestamp
                         first = False
-                    
+
                     m = message.clean_content
                     m = newliner.sub('\n\t', m)
-                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.display_name) + '):\n\t' + m + '\n')
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(
+                        message.author.display_name) + '):\n\t' + m + '\n')
                     f.write('attachments:\n')
                     for a in message.attachments:
                         f.write('\t')
                         f.write(a['url'])
                         f.write('\n')
                     f.write('\n')
-                    
+
                     now_time = message.timestamp
                     count += 1
                     total += 1
-            
+
                 f.close()
-                Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(now_time) + ' -- ' + str(start_time) + '.log')
+                Path(servPath + chanPath + 'temp').rename(
+                    servPath + chanPath + str(now_time) + ' -- ' + str(start_time) + '.log')
                 await bot.say("Backed up " + str(total) + " messages")
-            
+
             await bot.say("Backup finished")
-                
+
         else:
             num = int(num)
             f = open(servPath + chanPath + 'temp', 'w')
@@ -362,23 +388,26 @@ async def backup(ctx, num="1000"):
                 else:
                     m = message.clean_content
                     m = newliner.sub('\n\t', m)
-                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(message.author.nick) + '):\n\t' + m + '\n')
+                    f.write(str(message.timestamp) + ': ' + message.author.name + ' (' + str(
+                        message.author.nick) + '):\n\t' + m + '\n')
                     f.write('attachments:\n')
                     for a in message.attachments:
                         f.write('\t')
                         f.write(a['url'])
                         f.write('\n')
                     f.write('\n')
-                
+
                 end_time = message.timestamp
-            
+
             f.close()
-            Path(servPath + chanPath + 'temp').rename(servPath + chanPath + str(end_time) + ' -- ' + str(start_time) + '.log')
+            Path(servPath + chanPath + 'temp').rename(
+                servPath + chanPath + str(end_time) + ' -- ' + str(start_time) + '.log')
             await bot.say('Backup finished')
     except ValueError:
         await bot.say('Incorrect number format')
     except e:
         await bot.send_message()
+
 
 @bot.command(pass_context=True)
 async def who(ctx, user):
@@ -391,11 +420,13 @@ async def who(ctx, user):
                 break
         if user == None:
             await bot.say("mention a user!")
-        msg = "```Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nCreated: {5}\nNickname: {6}```Avatar URL: {4}\n".format(user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
+        msg = "```Name: {0}\nID: {1}\nDiscriminator: {2}\nBot: {3}\nCreated: {5}\nNickname: {6}```Avatar URL: {4}\n".format(
+            user.name, user.id, user.discriminator, user.bot, user.avatar_url, user.created_at, user.display_name)
         await bot.say(str(user))
         await bot.say(msg)
     except:
         await bot.say("Please mention a user!")
+
 
 @asyncio.coroutine
 async def on_tick():
@@ -414,24 +445,29 @@ async def on_tick():
             await bot.send_message(channel, "poll #{0} is now over!".format(poll['pollNum']))
             polls.remove(poll)
 
+
 def last_backup_time(backup_dir):
     p = Path(backup_dir)
     last_file = None
     for f in p.iterdir():
         last_file = f
-    
+
     if last_file is None: return None
     file_name = str(last_file)
     split_name = file_name.split('-- ')
     date_str = split_name[1]
     return string_to_datetime(date_str)
 
+
 def string_to_datetime(s):
     date_and_time = s.split()
     date = date_and_time[0].split('-')
     time = date_and_time[1].split(':')
     seconds_and_micro = time[2].split('.')
-    return datetime.datetime(year=int(date[0]), month=int(date[1]), day=int(date[2]), hour=int(time[0]), minute=int(time[1]), second=int(seconds_and_micro[0]), microsecond=int(seconds_and_micro[1]))
+    return datetime.datetime(year=int(date[0]), month=int(date[1]), day=int(date[2]), hour=int(time[0]),
+                             minute=int(time[1]), second=int(seconds_and_micro[0]),
+                             microsecond=int(seconds_and_micro[1]))
+
 
 @bot.event
 async def on_ready():
@@ -449,6 +485,7 @@ async def on_ready():
     logger.info('------')
     await bot.change_presence(game=discord.Game(name=ds['bot']['game']))
 
+
 startTime = time.time()
 timerTask = loop.create_task(timer())
 try:
@@ -457,3 +494,4 @@ except SystemExit:
     print('Shutting down!')
 settings.close()
 sys.exit()
+# EOF error prevention
