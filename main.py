@@ -180,7 +180,7 @@ async def create(ctx, time, description, *options):
     pollNum = ds['bot']['pollNum']
     ds['bot']['pollNum'] += 1
     try:
-        ##        time = int(time)
+        # time = int(time)
         time = timeToTicks(time)
         desc = description
         pos = {}
@@ -212,7 +212,7 @@ async def vote(number, option):
 @bot.command()
 async def timeto(ticks):
     '''says how much time will pass in <ticks> ticks
-    !!obsolite!!'''
+    !!obsolete!!'''
     try:
         ticks = int(''.join(ticks))
         seconds = ds['bot']['ticklength'] * ticks
