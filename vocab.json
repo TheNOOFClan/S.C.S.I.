@@ -1,1 +1,24 @@
-{}
+{
+    "This": [
+        "is"
+    ],
+    "a": [
+        "test.",
+        "mighty"
+    ],
+    "fine": [
+        "test"
+    ],
+    "is": [
+        "a"
+    ],
+    "mighty": [
+        "fine"
+    ],
+    "test": [
+        "indeed"
+    ],
+    "test.": [
+        "a"
+    ]
+}

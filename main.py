@@ -8,12 +8,15 @@ import sys
 import random
 import datetime
 import re
+import markov as mk
 
 from discord.ext import commands
 from pathlib import Path
 
 description = '''An automod bot for auto modding
 '''
+
+mk = mk.Markov
 
 reminders = []
 polls = []
@@ -427,6 +430,23 @@ async def who(ctx, user):
     except:
         await bot.say("Please mention a user!")
 
+@bot.group(pass_context=True)
+async def markov(ctx):
+    '''The Markov command group'''
+    if ctx.invoked_subcommand == None:
+        await bot.say("Must be used with a subcommand!")
+
+@markov.command()
+async def read(text):
+    '''Reads passed text'''
+    mk.readText(text)
+    await bot.say("Got it!")
+
+@markov.command()
+async def write(words=100):
+    '''Think, swine!'''
+    await bot.say("Lucky: {0}".format(mk.writeText(words)))
+
 
 @asyncio.coroutine
 async def on_tick():
@@ -493,5 +513,6 @@ try:
 except SystemExit:
     print('Shutting down!')
 settings.close()
+mk.stop()
 sys.exit()
 # EOF error prevention
