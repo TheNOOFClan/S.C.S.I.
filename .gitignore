@@ -65,6 +65,8 @@ target/
 # Keep git from pushing `settings.json`s with keys/tokens while keeping
 # default settings.json format
 testing.json
+vocab.json
+words.json
 
 # Keep pycharm files out of repo
 .idea/S.C.S.I..iml
