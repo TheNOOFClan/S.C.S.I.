@@ -459,11 +459,15 @@ async def read(text):
 
 
 @markov.command(pass_context=True)
-async def readchannel(ctx, msgs=100):
+async def readchannel(ctx, msgs=1000):
     '''reads messages in the channel'''
-    await bot.say("Reading {0} messages from {1}".format(msgs, ctx.message.channel))
-    async for m in bot.logs_from(ctx.message.channel, msgs):
-        mk.readText(m.content)
+    if ctx.message.channel_mentions:
+        channel = ctx.message.channel_mentions[0]
+    else:
+        channel = ctx.message.channel
+    await bot.say("Reading {0} messages from {1}".format(msgs, channel))
+    async for m in bot.logs_from(channel, msgs):
+        mk.readText(m.clean_content)
     mk.save()
     await bot.say("Got it!")
 

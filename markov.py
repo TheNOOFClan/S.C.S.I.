@@ -58,6 +58,7 @@ class Markov:
 
     def readText(txt):
         txt = txt.split()
+        txt.append('\n')
         for i in range(len(txt) - 1):
             try:
                 Markov.vocab[txt[i]].append(txt[i + 1])
