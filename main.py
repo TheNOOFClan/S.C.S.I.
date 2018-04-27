@@ -538,10 +538,10 @@ try:
     bot.run(ds['bot']["token"])
 except SystemExit:
     print('Shutting down!')
-    settings.flush()
-    ds['reminders'] = reminders
-    ds['polls'] = poll
-    json.dump(ds, settings)
+    # settings.flush()
+    # ds['reminders'] = reminders
+    # ds['polls'] = poll
+    # json.dump(ds, settings)
     settings.close()
     mk.stop()
 sys.exit()

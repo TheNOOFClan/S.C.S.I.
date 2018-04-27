@@ -80,6 +80,7 @@ class Markov:
                 text.append(random.choice(tmp))
         except KeyError:
             print("Just a key error, nothing to see here!")
+            writeText(n)
             return " ".join(text)
         finally:
             return " ".join(text)
