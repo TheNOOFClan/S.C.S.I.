@@ -430,17 +430,29 @@ async def who(ctx, user):
     except:
         await bot.say("Please mention a user!")
 
+
 @bot.group(pass_context=True)
 async def markov(ctx):
     '''The Markov command group'''
     if ctx.invoked_subcommand == None:
         await bot.say("Must be used with a subcommand!")
 
+
 @markov.command()
 async def read(text):
     '''Reads passed text'''
     mk.readText(text)
     await bot.say("Got it!")
+
+
+@markov.command(pass_context=True)
+async def readchannel(ctx, msgs=100):
+    '''reads messages in the channel'''
+    await bot.say("Reading {0} messages from {1}".format(msgs, ctx.message.channel))
+    async for m in bot.logs_from(ctx.message.channel, msgs):
+        mk.readText(m.content)
+    await bot.say("Got it!")
+
 
 @markov.command()
 async def write(words=100):
