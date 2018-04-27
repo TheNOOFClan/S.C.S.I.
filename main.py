@@ -471,7 +471,8 @@ async def readchannel(ctx, msgs=100):
 @markov.command()
 async def write(words=100):
     '''Think, swine!'''
-    await bot.say("Lucky: {0}".format(mk.writeText(words)))
+    msg = mk.writeText(words)
+    await bot.say("Lucky: {0}".format(msg))
 
 
 @asyncio.coroutine

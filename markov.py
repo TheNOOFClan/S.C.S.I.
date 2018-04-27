@@ -78,9 +78,10 @@ class Markov:
             for i in range(n):
                 tmp = Markov.vocab[text[i]]
                 text.append(random.choice(tmp))
+                n -= 1
         except KeyError:
             print("Just a key error, nothing to see here!")
-            writeText(n)
+            text.append(Markov.writeText(n))
             return " ".join(text)
         finally:
             return " ".join(text)
