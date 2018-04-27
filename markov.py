@@ -1,6 +1,7 @@
 import random
 import io
 import json
+import time
 
 
 class Markov:
@@ -71,7 +72,8 @@ class Markov:
         json.dump(Markov.words, Markov.wordsFile, sort_keys=True)
         json.dump(Markov.vocab, Markov.vocabFile, sort_keys=True)
 
-    def writeText(n=100):
+    def writeText(n=10):
+        print("writing")
         text = [random.choice(Markov.words)]
         n -= 1
         for i in range(n):
@@ -79,6 +81,8 @@ class Markov:
                 tmp = Markov.vocab[text[i]]
             except KeyError:
                 print("Just a key error, nothing to see here!")
+                time.sleep(0.05)
+                tmp = Markov.vocab[random.choice(Markov.words)]
             text.append(random.choice(tmp))
         return " ".join(text)
 
@@ -89,8 +93,8 @@ class Markov:
 
 
 if __name__ == "__main__":
-    text = """This is a test. a mighty fine test indeed"""
-    Markov.readText(text)
+    Markov.readText("this is a test")
+    Markov.readText("a mighty fine test indeed")
     print(Markov.writeText())
-    Markov.stop();
+    Markov.stop()
 # test

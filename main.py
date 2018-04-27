@@ -477,7 +477,8 @@ async def readchannel(ctx, msgs=1000):
 async def write(words=100):
     '''Think, swine!'''
     msg = mk.writeText(words)
-    msgs = list(chunkstring(msg, 1993))
+    msgs = list(chunkstring(msg, 1000))
+    print(msgs)
     for all in msgs:
         await bot.say("Lucky: {0}".format(all))
 
@@ -519,6 +520,7 @@ def last_backup_time(backup_dir):
     split_name = file_name.split('-- ')
     date_str = split_name[1]
     return string_to_datetime(date_str)
+
 
 def chunkstring(string, length):
     return (string[0+i:length+i] for i in range(0, len(string), length))
