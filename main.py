@@ -18,18 +18,25 @@ description = '''An automod bot for auto modding
 
 mk = mk.Markov
 
-reminders = []
-polls = []
-
 TESTING = True
 if TESTING:
-    settings = open('testing.json', 'r')
+    settings = open('testing.json', '+r')
 else:
-    settings = open('settings.json', 'r')
+    settings = open('settings.json', '+r')
 
 ds = json.load(settings)
 
 prefix = ds['bot']['prefix']
+
+if 'reminders' in ds:
+    reminders = ds['reminders']
+else:
+    reminders = []
+
+if 'polls' in ds:
+    polls = ds['polls']
+else:
+    polls = []
 
 bot = commands.Bot(command_prefix=prefix, description=description)
 
@@ -82,7 +89,7 @@ def timeToTicks(time):
     timeSec = 0
     for all in time:
         if "w" in all or "week" in all or "weeks" in all:
-            tmp = all.strip('weks')
+            tmp = all.strip('weeks')
             timeSec += datetime.timedelta(weeks=int(tmp)).total_seconds()
         elif "d" in all or "day" in all or "days" in all:
             tmp = all.strip('days')
@@ -238,8 +245,13 @@ async def timeto(ticks):
 #         msg = "Shutting down now!"
 #         await bot.say(msg)
 #         timerTask.cancel()
-#         bot.logout()
+#         #settings.flush()
+#         #ds['reminders'] = reminders
+#         #ds['polls'] = poll
+#         #json.dump(ds, settings)
 #         settings.close()
+#         mk.stop()
+#         bot.logout()
 #         bot.close()
 #     else:
 #         await bot.say("User is not {0}, ask a {0} to use this command!".format(ds['bot']['botmin']))
@@ -442,6 +454,7 @@ async def markov(ctx):
 async def read(text):
     '''Reads passed text'''
     mk.readText(text)
+    mk.save()
     await bot.say("Got it!")
 
 
@@ -451,6 +464,7 @@ async def readchannel(ctx, msgs=100):
     await bot.say("Reading {0} messages from {1}".format(msgs, ctx.message.channel))
     async for m in bot.logs_from(ctx.message.channel, msgs):
         mk.readText(m.content)
+    mk.save()
     await bot.say("Got it!")
 
 
@@ -524,7 +538,11 @@ try:
     bot.run(ds['bot']["token"])
 except SystemExit:
     print('Shutting down!')
-settings.close()
-mk.stop()
+    settings.flush()
+    ds['reminders'] = reminders
+    ds['polls'] = poll
+    json.dump(ds, settings)
+    settings.close()
+    mk.stop()
 sys.exit()
 # EOF error prevention

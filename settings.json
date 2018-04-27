@@ -25,9 +25,8 @@
 			"botspam":""
 		}
 	],
-  "contrib":[
-    "jellopudding",
-    "onionsans."
-  ]
-	
+	"contrib":[
+		"jellopudding",
+		"onionsans."
+	]
 }
