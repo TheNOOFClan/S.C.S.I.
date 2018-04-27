@@ -58,7 +58,6 @@ class Markov:
 
     def readText(txt):
         txt = txt.split()
-        txt.append('\n')
         for i in range(len(txt) - 1):
             try:
                 Markov.vocab[txt[i]].append(txt[i + 1])
@@ -69,23 +68,19 @@ class Markov:
     def save():
         Markov.wordsFile.flush()
         Markov.vocabFile.flush()
-        json.dump(Markov.words, Markov.wordsFile, sort_keys=True, indent=4)
-        json.dump(Markov.vocab, Markov.vocabFile, sort_keys=True, indent=4)
+        json.dump(Markov.words, Markov.wordsFile, sort_keys=True)
+        json.dump(Markov.vocab, Markov.vocabFile, sort_keys=True)
 
     def writeText(n=100):
         text = [random.choice(Markov.words)]
         n -= 1
-        try:
-            for i in range(n):
+        for i in range(n):
+            try:
                 tmp = Markov.vocab[text[i]]
-                text.append(random.choice(tmp))
-                n -= 1
-        except KeyError:
-            print("Just a key error, nothing to see here!")
-            text.append(Markov.writeText(n))
-            return " ".join(text)
-        finally:
-            return " ".join(text)
+            except KeyError:
+                print("Just a key error, nothing to see here!")
+            text.append(random.choice(tmp))
+        return " ".join(text)
 
     def stop():
         Markov.save()

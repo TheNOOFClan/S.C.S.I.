@@ -477,7 +477,9 @@ async def readchannel(ctx, msgs=1000):
 async def write(words=100):
     '''Think, swine!'''
     msg = mk.writeText(words)
-    await bot.say("Lucky: {0}".format(msg))
+    msgs = list(chunkstring(msg, 1993))
+    for all in msgs:
+        await bot.say("Lucky: {0}".format(msgs))
 
 # @markov.command(pass_context=True)
 # async def upload(ctx):
@@ -518,6 +520,8 @@ def last_backup_time(backup_dir):
     date_str = split_name[1]
     return string_to_datetime(date_str)
 
+def chunkstring(string, length):
+    return (string[0+i:length+i] for i in range(0, len(string), length))
 
 def string_to_datetime(s):
     date_and_time = s.split()
