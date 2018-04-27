@@ -467,7 +467,8 @@ async def readchannel(ctx, msgs=1000):
         channel = ctx.message.channel
     await bot.say("Reading {0} messages from {1}".format(msgs, channel))
     async for m in bot.logs_from(channel, msgs):
-        mk.readText(m.clean_content)
+        if m.author != bot.user:
+            mk.readText(m.clean_content)
     mk.save()
     await bot.say("Got it!")
 
@@ -477,6 +478,14 @@ async def write(words=100):
     '''Think, swine!'''
     msg = mk.writeText(words)
     await bot.say("Lucky: {0}".format(msg))
+
+# @markov.command(pass_context=True)
+# async def upload(ctx):
+#     '''uploads the jsons for markov'''
+#     await mk.save()
+#     await bot.say("Uploading files!")
+#     await bot.send_file(ctx.message.channel, mk.vocabFile)
+#     await bot.send_file(ctx.message.channel, mk.wordsFile)
 
 
 @asyncio.coroutine
