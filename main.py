@@ -479,7 +479,7 @@ async def write(words=100):
     msg = mk.writeText(words)
     msgs = list(chunkstring(msg, 1993))
     for all in msgs:
-        await bot.say("Lucky: {0}".format(msgs))
+        await bot.say("Lucky: {0}".format(all))
 
 # @markov.command(pass_context=True)
 # async def upload(ctx):
