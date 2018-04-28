@@ -9,6 +9,7 @@ import random
 import datetime
 import re
 import markov as mk
+import newmarkov
 
 from discord.ext import commands
 from pathlib import Path
@@ -17,6 +18,7 @@ description = '''An automod bot for auto modding
 '''
 
 mk = mk.Markov
+nmk = newmarkov.NewMarkov()
 
 TESTING = True
 if TESTING:
@@ -447,14 +449,17 @@ async def who(ctx, user):
 async def markov(ctx):
     '''The Markov command group'''
     if ctx.invoked_subcommand == None:
-        await bot.say("Must be used with a subcommand!")
+        words = len(nmk.words)
+        await bot.say("I know {0} words!\nPlease use a subcommand to use or expand my knowledge!".format(words))
 
 
 @markov.command()
 async def read(text):
     '''Reads passed text'''
-    mk.readText(text)
-    mk.save()
+    # mk.readText(text)
+    # mk.save()
+    nmk.read(text)
+    nmk.save()
     await bot.say("Got it!")
 
 
@@ -468,15 +473,18 @@ async def readchannel(ctx, msgs=1000):
     await bot.say("Reading {0} messages from {1}".format(msgs, channel))
     async for m in bot.logs_from(channel, msgs):
         if m.author != bot.user:
-            mk.readText(m.clean_content)
-    mk.save()
+            # mk.readText(m.clean_content)
+            nmk.read(m.clean_content)
+    # mk.save()
+    nmk.save()
     await bot.say("Got it!")
 
 
 @markov.command()
 async def write(words=100):
     '''Think, swine!'''
-    msg = mk.writeText(words)
+    # msg = mk.writeText(words)
+    msg = nmk.write(words)
     msgs = list(chunkstring(msg, 1000))
     print(msgs)
     for all in msgs:
@@ -563,6 +571,7 @@ except SystemExit:
     # ds['polls'] = poll
     # json.dump(ds, settings)
     settings.close()
-    mk.stop()
+    nmk.save()
+    nmk.words_file.close()
 sys.exit()
 # EOF error prevention
